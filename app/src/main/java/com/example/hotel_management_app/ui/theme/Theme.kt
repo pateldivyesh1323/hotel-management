@@ -1,0 +1,100 @@
+package com.example.hotel_management_app.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+
+private val LightColorScheme = lightColorScheme(
+    primary = LimePrimary,
+    onPrimary = LimeOnPrimary,
+    primaryContainer = LimeContainer,
+    onPrimaryContainer = LimeOnContainer,
+    secondary = LeafSecondary,
+    onSecondary = LeafOnSecondary,
+    secondaryContainer = LeafContainer,
+    onSecondaryContainer = LeafOnContainer,
+    tertiary = MintTertiary,
+    onTertiary = MintOnTertiary,
+    tertiaryContainer = MintContainer,
+    onTertiaryContainer = MintOnContainer,
+    background = LightBackground,
+    onBackground = LightOnSurface,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightSurfaceVariant,
+    onSurfaceVariant = LightOnSurfaceVariant,
+    surfaceContainerLowest = LightSurface,
+    surfaceContainerLow = LightSurface,
+    surfaceContainer = LightSurface,
+    surfaceContainerHigh = LightBackground,
+    surfaceContainerHighest = LightSurfaceVariant,
+    outline = LightOutline,
+    outlineVariant = LightOutline
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = LimePrimaryDark,
+    onPrimary = LimeOnPrimaryDark,
+    primaryContainer = LimeContainerDark,
+    onPrimaryContainer = LimeOnContainerDark,
+    secondary = LeafSecondaryDark,
+    onSecondary = LeafOnSecondaryDark,
+    secondaryContainer = LeafContainerDark,
+    onSecondaryContainer = LeafOnContainerDark,
+    tertiary = MintTertiaryDark,
+    onTertiary = MintOnTertiaryDark,
+    tertiaryContainer = MintContainerDark,
+    onTertiaryContainer = MintOnContainerDark,
+    background = DarkBackground,
+    onBackground = DarkOnSurface,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkSurfaceVariant,
+    onSurfaceVariant = DarkOnSurfaceVariant,
+    surfaceContainerLowest = DarkBackground,
+    surfaceContainerLow = DarkSurface,
+    surfaceContainer = DarkSurface,
+    surfaceContainerHigh = DarkSurfaceVariant,
+    surfaceContainerHighest = DarkSurfaceVariant,
+    outline = DarkOutline,
+    outlineVariant = DarkOutline
+)
+
+/** True when the app is painting its dark scheme, inferred from the surface colour. */
+@Composable
+@ReadOnlyComposable
+internal fun isDarkScheme(): Boolean = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+
+/**
+ * The ordered series palette every chart draws from, so a donut slice, a bar and an area
+ * fill for the same data always land on the same colour.
+ */
+@Composable
+@ReadOnlyComposable
+fun chartPalette(): List<Color> = if (isDarkScheme()) {
+    listOf(ChartLimeDark, ChartLimeSoftDark, ChartMintDark, ChartMintDeepDark, ChartSageDark, ChartOliveDark)
+} else {
+    listOf(ChartLime, ChartLimeSoft, ChartMint, ChartMintDeep, ChartSage, ChartOlive)
+}
+
+/**
+ * Dynamic colour is deliberately off: a property's brand should look the same on every
+ * device at the front desk.
+ */
+@Composable
+fun Hotel_Management_AppTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
+    )
+}
