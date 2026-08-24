@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +35,7 @@ import com.example.hotel_management_app.data.BookingStatus
 import com.example.hotel_management_app.data.HotelRepository
 import com.example.hotel_management_app.ui.components.DetailRow
 import com.example.hotel_management_app.ui.components.GuestAvatar
+import com.example.hotel_management_app.ui.components.RoomThumbnail
 import com.example.hotel_management_app.ui.components.SectionHeader
 import com.example.hotel_management_app.ui.components.StatusPill
 import com.example.hotel_management_app.ui.full
@@ -108,8 +110,23 @@ fun BookingDetailScreen(
                 if (room == null) {
                     Text("The room for this booking was removed.")
                 } else {
-                    DetailRow("Room", room.number)
-                    DetailRow("Type", room.type.label)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RoomThumbnail(room, size = 64)
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Room ${room.number}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "${room.type.label} · floor ${room.floor}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
                     DetailRow("Nightly rate", money(room.type.nightlyRate))
                 }
             }

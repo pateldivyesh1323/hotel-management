@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -54,7 +57,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -63,6 +69,7 @@ import com.example.hotel_management_app.data.ActivityKind
 import com.example.hotel_management_app.data.Booking
 import com.example.hotel_management_app.data.HotelRepository
 import com.example.hotel_management_app.data.HotelTask
+import com.example.hotel_management_app.data.Room
 import com.example.hotel_management_app.data.RoomStatus
 import com.example.hotel_management_app.ui.components.AreaChart
 import com.example.hotel_management_app.ui.components.ChartLegend
@@ -75,13 +82,17 @@ import com.example.hotel_management_app.ui.components.KeyedStatTile
 import com.example.hotel_management_app.ui.components.MetricTile
 import com.example.hotel_management_app.ui.components.PanelCard
 import com.example.hotel_management_app.ui.components.PanelSection
+import com.example.hotel_management_app.ui.components.RoomImage
+import com.example.hotel_management_app.ui.components.RoomThumbnail
 import com.example.hotel_management_app.ui.components.ScoreBar
 import com.example.hotel_management_app.ui.components.SegmentedBar
 import com.example.hotel_management_app.ui.components.StatusPill
+import com.example.hotel_management_app.ui.components.imageScrim
 import com.example.hotel_management_app.ui.clockTime
 import com.example.hotel_management_app.ui.compactMoney
 import com.example.hotel_management_app.ui.dueLabel
 import com.example.hotel_management_app.ui.guestsLabel
+import com.example.hotel_management_app.ui.headline
 import com.example.hotel_management_app.ui.money
 import com.example.hotel_management_app.ui.nightsLabel
 import com.example.hotel_management_app.ui.stayRange
@@ -101,6 +112,7 @@ fun DashboardScreen(
     onOpenMessages: () -> Unit,
     onOpenReviews: () -> Unit,
     onOpenBookings: () -> Unit,
+    onOpenRooms: () -> Unit,
     onMessage: (String) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -117,6 +129,24 @@ fun DashboardScreen(
     val channels = repo.channelMix()
     val rating = repo.rating()
     val tasks = repo.openTasks().take(4)
+
+    // The gallery leads with the rooms that still owe the desk something, so the strip is
+    // a worklist and not just decoration.
+    val gallery = remember(repo.rooms.toList()) {
+        repo.rooms.sortedWith(
+            compareBy(
+                { room ->
+                    when (room.status) {
+                        RoomStatus.CLEANING -> 0
+                        RoomStatus.MAINTENANCE -> 1
+                        RoomStatus.OCCUPIED -> 2
+                        RoomStatus.AVAILABLE -> 3
+                    }
+                },
+                { it.number }
+            )
+        )
+    }
 
     val bookings = remember(query, repo.bookings.toList()) {
         val needle = query.trim().lowercase()
@@ -138,7 +168,12 @@ fun DashboardScreen(
     ) {
         item {
             DashboardHeader(
+                greeting = greetingFor(repo.currentTime().hour),
+                date = today.headline(),
                 unread = repo.unreadMessages(),
+                inHouse = stats.inHouseGuests,
+                arrivals = stats.arrivalsToday,
+                departures = stats.departuresToday,
                 onOpenMessages = onOpenMessages
             )
         }
@@ -226,6 +261,25 @@ fun DashboardScreen(
                             label = "Not ready",
                             keyColor = palette[3],
                             modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            PanelSection(
+                title = "Rooms tonight",
+                trailing = {
+                    TextButton(onClick = onOpenRooms) { Text("See all") }
+                }
+            ) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(gallery, key = { it.id }) { room ->
+                        RoomPreviewCard(
+                            room = room,
+                            occupantName = repo.currentBookingFor(room.id)?.guestName,
+                            onClick = { onOpenRoom(room.id) }
                         )
                     }
                 }
@@ -445,6 +499,8 @@ fun DashboardScreen(
                                     .clickable { onOpenRoom(room.id) },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                RoomThumbnail(room)
+                                Spacer(Modifier.width(12.dp))
                                 Column(Modifier.weight(1f)) {
                                     Text(
                                         text = "Room ${room.number}",
@@ -471,49 +527,205 @@ fun DashboardScreen(
     }
 }
 
+/**
+ * The one piece of colour on the screen. Everything below it is a white card, so the
+ * gradient is what gives the dashboard a top edge and the property a face — and it
+ * carries the three numbers the desk is asked for before anything else.
+ */
 @Composable
 private fun DashboardHeader(
+    greeting: String,
+    date: String,
     unread: Int,
+    inHouse: Int,
+    arrivals: Int,
+    departures: Int,
     onOpenMessages: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+    val onHero = MaterialTheme.colorScheme.onPrimaryContainer
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.extraLarge)
+            .background(
+                Brush.linearGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                )
+            )
     ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = "Dashboard",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                text = "Lodgify Grand · front desk",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Box {
-            IconButton(onClick = onOpenMessages) {
-                Icon(Icons.Filled.Notifications, contentDescription = "Messages")
-            }
-            if (unread > 0) {
-                Box(
-                    modifier = Modifier
-                        .padding(start = 26.dp, top = 6.dp)
-                        .size(16.dp)
-                        .background(MaterialTheme.colorScheme.error, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
+        // Two soft discs bleeding off the corner, so the panel reads as lit rather than
+        // as a flat fill. They are clipped by the card above them.
+        Box(
+            Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 40.dp, y = (-56).dp)
+                .size(150.dp)
+                .background(onHero.copy(alpha = 0.07f), CircleShape)
+        )
+        Box(
+            Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = 24.dp, y = 44.dp)
+                .size(110.dp)
+                .background(onHero.copy(alpha = 0.05f), CircleShape)
+        )
+
+        Column(Modifier.padding(18.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
                     Text(
-                        text = unread.toString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onError
+                        text = greeting,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = onHero
+                    )
+                    Text(
+                        text = "Lodgify Grand · $date",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = onHero.copy(alpha = 0.75f)
                     )
                 }
+                Box {
+                    IconButton(onClick = onOpenMessages) {
+                        Icon(
+                            imageVector = Icons.Filled.Notifications,
+                            contentDescription = "Messages",
+                            tint = onHero
+                        )
+                    }
+                    if (unread > 0) {
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 26.dp, top = 6.dp)
+                                .size(16.dp)
+                                .background(MaterialTheme.colorScheme.error, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = unread.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onError
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.width(4.dp))
+                GuestAvatar(
+                    name = "Jaylon Dorwart",
+                    size = 38,
+                    container = MaterialTheme.colorScheme.surface,
+                    content = onHero
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                HeroStat("In house", inHouse, onHero, Modifier.weight(1f))
+                HeroStat("Arrivals", arrivals, onHero, Modifier.weight(1f))
+                HeroStat("Departures", departures, onHero, Modifier.weight(1f))
             }
         }
-        Spacer(Modifier.width(4.dp))
-        GuestAvatar(name = "Jaylon Dorwart", size = 38)
+    }
+}
+
+@Composable
+private fun HeroStat(
+    label: String,
+    value: Int,
+    content: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                MaterialTheme.shapes.medium
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = content
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = content.copy(alpha = 0.75f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** "Good morning" until noon, then afternoon, then evening from six. */
+private fun greetingFor(hour: Int): String = when {
+    hour < 12 -> "Good morning"
+    hour < 18 -> "Good afternoon"
+    else -> "Good evening"
+}
+
+/**
+ * One room in the gallery strip: the picture does the work, with the number and status
+ * over it and the line the desk needs underneath.
+ */
+@Composable
+private fun RoomPreviewCard(
+    room: Room,
+    occupantName: String?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PanelCard(modifier = modifier.width(152.dp), onClick = onClick) {
+        Column {
+            RoomImage(
+                room = room,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp),
+                shape = RectangleShape
+            ) {
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(imageScrim())
+                )
+                StatusPill(
+                    label = room.status.label,
+                    tone = room.status.tone(),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(6.dp)
+                )
+                Text(
+                    text = room.number,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(horizontal = 10.dp, vertical = 8.dp)
+                )
+            }
+            Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+                Text(
+                    text = room.type.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1
+                )
+                Text(
+                    text = occupantName ?: "${money(room.type.nightlyRate)} / night",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 

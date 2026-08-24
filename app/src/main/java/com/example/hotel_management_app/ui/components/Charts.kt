@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.hotel_management_app.data.SeriesPoint
+import com.example.hotel_management_app.ui.theme.chartPalette
 import com.example.hotel_management_app.data.Slice
 import androidx.compose.ui.graphics.luminance
 import kotlin.math.max
@@ -57,7 +58,7 @@ import kotlin.math.roundToInt
 fun AreaChart(
     points: List<SeriesPoint>,
     modifier: Modifier = Modifier,
-    lineColor: Color = MaterialTheme.colorScheme.primary,
+    lineColor: Color = chartPalette()[0],
     selectedIndex: Int? = null,
     onSelect: (Int) -> Unit = {},
     valueLabel: (Float) -> String = { it.toInt().toString() },
@@ -186,8 +187,8 @@ fun GroupedBarChart(
     primary: List<SeriesPoint>,
     secondary: List<SeriesPoint>,
     modifier: Modifier = Modifier,
-    primaryColor: Color = MaterialTheme.colorScheme.primary,
-    secondaryColor: Color = MaterialTheme.colorScheme.tertiary,
+    primaryColor: Color = chartPalette()[0],
+    secondaryColor: Color = chartPalette()[2],
     height: Int = 140
 ) {
     if (primary.isEmpty()) return
@@ -376,7 +377,7 @@ fun ScoreBar(
     score: Float,
     modifier: Modifier = Modifier,
     max: Float = 5f,
-    color: Color = MaterialTheme.colorScheme.primary,
+    color: Color = chartPalette()[0],
     valueText: String? = null
 ) {
     val fraction by animateFloatAsState(

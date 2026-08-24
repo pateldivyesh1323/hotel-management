@@ -251,6 +251,7 @@ fun HotelApp(repo: HotelRepository, modifier: Modifier = Modifier) {
                     onOpenMessages = { push(ROUTE_MESSAGES) },
                     onOpenReviews = { push(ROUTE_REVIEWS) },
                     onOpenBookings = { tab = Tab.BOOKINGS.name },
+                    onOpenRooms = { tab = Tab.ROOMS.name },
                     onMessage = { message = it },
                     contentPadding = padding
                 )

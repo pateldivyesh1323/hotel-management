@@ -1,7 +1,9 @@
 package com.example.hotel_management_app.ui.rooms
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,13 +12,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Balcony
+import androidx.compose.material.icons.filled.FreeBreakfast
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,14 +39,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hotel_management_app.data.HotelRepository
 import com.example.hotel_management_app.data.RoomStatus
+import com.example.hotel_management_app.data.RoomType
 import com.example.hotel_management_app.ui.components.DetailRow
 import com.example.hotel_management_app.ui.components.GuestAvatar
+import com.example.hotel_management_app.ui.components.RoomImage
 import com.example.hotel_management_app.ui.components.SectionHeader
 import com.example.hotel_management_app.ui.components.StatusPill
+import com.example.hotel_management_app.ui.components.imageScrim
 import com.example.hotel_management_app.ui.guestsLabel
 import com.example.hotel_management_app.ui.money
 import com.example.hotel_management_app.ui.stayRange
@@ -68,20 +83,49 @@ fun RoomDetailScreen(
             .verticalScroll(rememberScrollState())
             .padding(contentPadding)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
+        RoomImage(
+            room = room,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(196.dp),
+            shape = MaterialTheme.shapes.extraLarge
+        ) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(imageScrim())
+            )
+            StatusPill(
+                label = room.status.label,
+                tone = room.status.tone(),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(12.dp)
+            )
+            Column(
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(horizontal = 16.dp, vertical = 14.dp)
+            ) {
                 Text(
                     text = "Room ${room.number}",
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 Text(
-                    text = "${room.type.label} · floor ${room.floor}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = "${room.type.label} · floor ${room.floor} · ${money(room.type.nightlyRate)} / night",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.85f)
                 )
             }
-            StatusPill(label = room.status.label, tone = room.status.tone())
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            amenitiesFor(room.type).forEach { (icon, label) ->
+                AmenityChip(icon = icon, label = label)
+            }
         }
 
         Spacer(Modifier.height(16.dp))
@@ -212,5 +256,40 @@ fun RoomDetailScreen(
             Text("Book this room")
         }
         Spacer(Modifier.height(32.dp))
+    }
+}
+
+/** What the grade includes — the line the desk repeats to every caller. */
+private fun amenitiesFor(type: RoomType): List<Pair<ImageVector, String>> = buildList {
+    add(Icons.Filled.Wifi to "Wi-Fi")
+    add(Icons.Filled.AcUnit to "Air con")
+    if (type != RoomType.STANDARD) add(Icons.Filled.FreeBreakfast to "Breakfast")
+    if (type == RoomType.SUITE) add(Icons.Filled.Balcony to "Balcony")
+}
+
+@Composable
+private fun AmenityChip(
+    icon: ImageVector,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(50))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(14.dp)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }

@@ -24,6 +24,7 @@ import com.example.hotel_management_app.data.Room
 import com.example.hotel_management_app.data.RoomStatus
 import com.example.hotel_management_app.ui.components.EmptyHint
 import com.example.hotel_management_app.ui.components.PanelCard
+import com.example.hotel_management_app.ui.components.RoomThumbnail
 import com.example.hotel_management_app.ui.components.SectionHeader
 import com.example.hotel_management_app.ui.components.StatTile
 import com.example.hotel_management_app.ui.components.StatusPill
@@ -142,6 +143,8 @@ private fun HousekeepingRow(
     PanelCard(modifier = modifier.fillMaxWidth(), onClick = onClick) {
         Column(Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                RoomThumbnail(room)
+                Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = "Room ${room.number}",

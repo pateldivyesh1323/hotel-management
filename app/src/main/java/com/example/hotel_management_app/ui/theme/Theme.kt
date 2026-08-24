@@ -14,14 +14,14 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = LimeOnPrimary,
     primaryContainer = LimeContainer,
     onPrimaryContainer = LimeOnContainer,
-    secondary = LeafSecondary,
-    onSecondary = LeafOnSecondary,
-    secondaryContainer = LeafContainer,
-    onSecondaryContainer = LeafOnContainer,
-    tertiary = MintTertiary,
-    onTertiary = MintOnTertiary,
-    tertiaryContainer = MintContainer,
-    onTertiaryContainer = MintOnContainer,
+    secondary = StoneSecondary,
+    onSecondary = StoneOnSecondary,
+    secondaryContainer = StoneContainer,
+    onSecondaryContainer = StoneOnContainer,
+    tertiary = BlueTertiary,
+    onTertiary = BlueOnTertiary,
+    tertiaryContainer = BlueContainer,
+    onTertiaryContainer = BlueOnContainer,
     background = LightBackground,
     onBackground = LightOnSurface,
     surface = LightSurface,
@@ -42,14 +42,14 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = LimeOnPrimaryDark,
     primaryContainer = LimeContainerDark,
     onPrimaryContainer = LimeOnContainerDark,
-    secondary = LeafSecondaryDark,
-    onSecondary = LeafOnSecondaryDark,
-    secondaryContainer = LeafContainerDark,
-    onSecondaryContainer = LeafOnContainerDark,
-    tertiary = MintTertiaryDark,
-    onTertiary = MintOnTertiaryDark,
-    tertiaryContainer = MintContainerDark,
-    onTertiaryContainer = MintOnContainerDark,
+    secondary = StoneSecondaryDark,
+    onSecondary = StoneOnSecondaryDark,
+    secondaryContainer = StoneContainerDark,
+    onSecondaryContainer = StoneOnContainerDark,
+    tertiary = BlueTertiaryDark,
+    onTertiary = BlueOnTertiaryDark,
+    tertiaryContainer = BlueContainerDark,
+    onTertiaryContainer = BlueOnContainerDark,
     background = DarkBackground,
     onBackground = DarkOnSurface,
     surface = DarkSurface,
@@ -73,13 +73,16 @@ internal fun isDarkScheme(): Boolean = MaterialTheme.colorScheme.surface.luminan
 /**
  * The ordered series palette every chart draws from, so a donut slice, a bar and an area
  * fill for the same data always land on the same colour.
+ *
+ * The order is fixed and never cycled: it is what keeps adjacent series separable under
+ * colour-blind simulation, and both modes were validated as a set. See [ChartLime].
  */
 @Composable
 @ReadOnlyComposable
 fun chartPalette(): List<Color> = if (isDarkScheme()) {
-    listOf(ChartLimeDark, ChartLimeSoftDark, ChartMintDark, ChartMintDeepDark, ChartSageDark, ChartOliveDark)
+    listOf(ChartLimeDark, ChartRoseDark, ChartBlueDark, ChartOrangeDark, ChartVioletDark, ChartAquaDark)
 } else {
-    listOf(ChartLime, ChartLimeSoft, ChartMint, ChartMintDeep, ChartSage, ChartOlive)
+    listOf(ChartLime, ChartRose, ChartBlue, ChartOrange, ChartViolet, ChartAqua)
 }
 
 /**

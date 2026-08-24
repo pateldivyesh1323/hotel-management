@@ -85,6 +85,9 @@ class HotelRepository(
 
     fun currentDate(): LocalDate = today()
 
+    /** The wall clock the screens greet the user by, taken from the injected clock. */
+    fun currentTime(): LocalDateTime = now()
+
     fun unreadMessages(): Int = _threads.count { it.unread }
 
     fun openTasks(): List<HotelTask> = _tasks.filter { !it.done }.sortedWith(

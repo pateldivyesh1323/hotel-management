@@ -1,7 +1,9 @@
 package com.example.hotel_management_app.ui.rooms
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,14 +24,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.hotel_management_app.data.HotelRepository
 import com.example.hotel_management_app.data.Room
 import com.example.hotel_management_app.data.RoomStatus
 import com.example.hotel_management_app.ui.components.PanelCard
+import com.example.hotel_management_app.ui.components.RoomImage
 import com.example.hotel_management_app.ui.components.StatusPill
+import com.example.hotel_management_app.ui.components.imageScrim
 import com.example.hotel_management_app.ui.money
 import com.example.hotel_management_app.ui.theme.tone
 
@@ -59,6 +67,11 @@ fun RoomsScreen(
                     text = "Rooms",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${rooms.size} rooms across ${rooms.map { it.floor }.distinct().size} floors",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(
@@ -104,6 +117,10 @@ fun RoomsScreen(
     }
 }
 
+/**
+ * A picture of the room with its number burnt into the corner, over the line of detail
+ * the desk actually acts on: who is in it, or what it sells for.
+ */
 @Composable
 private fun RoomCard(
     room: Room,
@@ -112,30 +129,66 @@ private fun RoomCard(
     modifier: Modifier = Modifier
 ) {
     PanelCard(modifier = modifier.fillMaxWidth(), onClick = onClick) {
-        Column(Modifier.padding(14.dp)) {
-            Text(
-                text = room.number,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "${room.type.label} · floor ${room.floor}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(10.dp))
-            StatusPill(label = room.status.label, tone = room.status.tone())
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = occupantName ?: "${money(room.type.nightlyRate)} / night",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = if (occupantName != null) FontWeight.Medium else FontWeight.Normal,
-                color = if (occupantName != null) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+        Column {
+            // The card already clips to its own shape, so the picture squares off here.
+            RoomImage(
+                room = room,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(112.dp),
+                shape = RectangleShape
+            ) {
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(imageScrim())
+                )
+                StatusPill(
+                    label = room.status.label,
+                    tone = room.status.tone(),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                )
+                Column(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(horizontal = 12.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = room.number,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "${room.type.label} · floor ${room.floor}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.85f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-            )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = occupantName ?: "${money(room.type.nightlyRate)} / night",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = if (occupantName != null) FontWeight.Medium else FontWeight.Normal,
+                    color = if (occupantName != null) {
+                        MaterialTheme.colorScheme.onSurface
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
