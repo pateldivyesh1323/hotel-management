@@ -53,12 +53,3 @@ fun dueLabel(due: LocalDate, today: LocalDate): String = when (due) {
     today.minusDays(1) -> "Yesterday"
     else -> due.full()
 }
-
-/** "AS" for Aditi Sharma — used by the guest avatars. */
-fun initialsOf(name: String): String = name.trim()
-    .split(" ")
-    .filter { it.isNotBlank() }
-    .take(2)
-    .map { it.first().uppercaseChar() }
-    .joinToString("")
-    .ifEmpty { "?" }

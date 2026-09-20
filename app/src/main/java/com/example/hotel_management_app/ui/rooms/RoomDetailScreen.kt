@@ -156,11 +156,7 @@ fun RoomDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    GuestAvatar(
-                        name = occupant.guestName,
-                        container = MaterialTheme.colorScheme.secondary,
-                        content = MaterialTheme.colorScheme.onSecondary
-                    )
+                    GuestAvatar(name = occupant.guestName)
                     Column(Modifier.weight(1f)) {
                         Text(
                             text = occupant.guestName,

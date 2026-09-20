@@ -1,6 +1,7 @@
 package com.example.hotel_management_app.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,15 +25,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.hotel_management_app.R
 import com.example.hotel_management_app.data.Trend
-import com.example.hotel_management_app.ui.initialsOf
 import com.example.hotel_management_app.ui.theme.StatusTone
 import com.example.hotel_management_app.ui.theme.greenTone
 import com.example.hotel_management_app.ui.theme.redTone
@@ -330,29 +335,37 @@ fun EmptyHint(text: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Circular initials badge standing in for a guest photo. */
+/** Circular guest photo, picked deterministically from a small bundled pool by name. */
 @Composable
 fun GuestAvatar(
     name: String,
     modifier: Modifier = Modifier,
-    size: Int = 42,
-    container: Color = MaterialTheme.colorScheme.primaryContainer,
-    content: Color = MaterialTheme.colorScheme.onPrimaryContainer
+    size: Int = 42
 ) {
-    Box(
+    val photo = remember(name) { avatarFor(name) }
+    Image(
+        painter = painterResource(photo),
+        contentDescription = name,
         modifier = modifier
             .size(size.dp)
-            .background(container, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initialsOf(name),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = content
-        )
-    }
+            .clip(CircleShape),
+        contentScale = ContentScale.Crop
+    )
 }
+
+private val GuestAvatarPhotos = listOf(
+    R.drawable.guest_avatar_1,
+    R.drawable.guest_avatar_2,
+    R.drawable.guest_avatar_3,
+    R.drawable.guest_avatar_4,
+    R.drawable.guest_avatar_5,
+    R.drawable.guest_avatar_6,
+    R.drawable.guest_avatar_7,
+    R.drawable.guest_avatar_8
+)
+
+private fun avatarFor(name: String): Int =
+    GuestAvatarPhotos[name.sumOf { it.code } % GuestAvatarPhotos.size]
 
 /** Rounded icon chip used by the activity feed and the operations menu. */
 @Composable

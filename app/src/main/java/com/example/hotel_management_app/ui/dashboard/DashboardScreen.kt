@@ -1,5 +1,6 @@
 package com.example.hotel_management_app.ui.dashboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -58,12 +59,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.hotel_management_app.R
 import com.example.hotel_management_app.data.ActivityEntry
 import com.example.hotel_management_app.data.ActivityKind
 import com.example.hotel_management_app.data.Booking
@@ -543,35 +546,23 @@ private fun DashboardHeader(
     onOpenMessages: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val onHero = MaterialTheme.colorScheme.onPrimaryContainer
+    val onHero = Color.White
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.extraLarge)
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.primaryContainer,
-                        MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                )
-            )
     ) {
-        // Two soft discs bleeding off the corner, so the panel reads as lit rather than
-        // as a flat fill. They are clipped by the card above them.
-        Box(
-            Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = 40.dp, y = (-56).dp)
-                .size(150.dp)
-                .background(onHero.copy(alpha = 0.07f), CircleShape)
+        Image(
+            painter = painterResource(R.drawable.hotel_lobby),
+            contentDescription = "Hotel lobby",
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop
         )
+        // Darkens the photo evenly so the white text stays readable top to bottom.
         Box(
             Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 24.dp, y = 44.dp)
-                .size(110.dp)
-                .background(onHero.copy(alpha = 0.05f), CircleShape)
+                .matchParentSize()
+                .background(Color.Black.copy(alpha = 0.42f))
         )
 
         Column(Modifier.padding(18.dp)) {
@@ -616,9 +607,7 @@ private fun DashboardHeader(
                 Spacer(Modifier.width(4.dp))
                 GuestAvatar(
                     name = "Jaylon Dorwart",
-                    size = 38,
-                    container = MaterialTheme.colorScheme.surface,
-                    content = onHero
+                    size = 38
                 )
             }
             Spacer(Modifier.height(16.dp))
@@ -641,7 +630,7 @@ private fun HeroStat(
     Column(
         modifier = modifier
             .background(
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+                Color.Black.copy(alpha = 0.28f),
                 MaterialTheme.shapes.medium
             )
             .padding(horizontal = 12.dp, vertical = 10.dp)
