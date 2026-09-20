@@ -97,6 +97,13 @@ data class DashboardStats(
         get() = if (totalRooms == 0) 0f else occupied.toFloat() / totalRooms
 }
 
+/** How the app picks light vs. dark, set from the More tab. */
+enum class ThemeMode(val label: String) {
+    SYSTEM("System"),
+    LIGHT("Light"),
+    DARK("Dark")
+}
+
 // --- Operations ------------------------------------------------------------------
 
 enum class TaskPriority(val label: String) {

@@ -1,6 +1,9 @@
 package com.example.hotel_management_app.data
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,6 +30,9 @@ class HotelRepository(
     private val _activity: SnapshotStateList<ActivityEntry> = mutableStateListOf()
     private val _reviews: SnapshotStateList<Review> = mutableStateListOf()
     private val _threads: SnapshotStateList<MessageThread> = mutableStateListOf()
+
+    private var _themeMode by mutableStateOf(storage?.loadThemeMode() ?: ThemeMode.SYSTEM)
+    val themeMode: ThemeMode get() = _themeMode
 
     val rooms: List<Room> get() = _rooms
     val bookings: List<Booking> get() = _bookings
@@ -354,6 +360,13 @@ class HotelRepository(
             "Replied to ${thread.guestName}",
             "Room ${thread.roomNumber}: ${text.trim()}"
         )
+    }
+
+    // --- Settings ------------------------------------------------------------------
+
+    fun setThemeMode(mode: ThemeMode) {
+        _themeMode = mode
+        storage?.saveThemeMode(mode)
     }
 
     // --- Housekeeping of state ---------------------------------------------------

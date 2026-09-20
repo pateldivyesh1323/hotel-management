@@ -39,6 +39,15 @@ class HotelStorage(context: Context) {
         prefs.edit().putString(KEY_STATE, root.toString()).apply()
     }
 
+    fun loadThemeMode(): ThemeMode =
+        prefs.getString(KEY_THEME, null)
+            ?.let { name -> runCatching { ThemeMode.valueOf(name) }.getOrNull() }
+            ?: ThemeMode.SYSTEM
+
+    fun saveThemeMode(mode: ThemeMode) {
+        prefs.edit().putString(KEY_THEME, mode.name).apply()
+    }
+
     /** Returns null on a first run, or when the stored payload can no longer be read. */
     fun load(): StoredState? {
         val raw = prefs.getString(KEY_STATE, null) ?: return null
@@ -151,5 +160,6 @@ class HotelStorage(context: Context) {
     private companion object {
         const val TAG = "HotelStorage"
         const val KEY_STATE = "state_json"
+        const val KEY_THEME = "theme_mode"
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.TaskAlt
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -32,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.hotel_management_app.data.HotelRepository
 import com.example.hotel_management_app.data.RoomStatus
+import com.example.hotel_management_app.data.ThemeMode
 import com.example.hotel_management_app.ui.components.IconBadge
 import com.example.hotel_management_app.ui.components.PanelCard
 import com.example.hotel_management_app.ui.components.SectionHeader
@@ -77,6 +80,10 @@ fun OperationsScreen(
 
         item { Spacer(Modifier.width(0.dp)) }
 
+        item { SectionHeader("Settings") }
+
+        item { AppearanceCard(mode = repo.themeMode, onSelect = repo::setThemeMode) }
+
         item {
             OutlinedButton(
                 onClick = {
@@ -85,6 +92,29 @@ fun OperationsScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Reset demo data") }
+        }
+    }
+}
+
+@Composable
+private fun AppearanceCard(
+    mode: ThemeMode,
+    onSelect: (ThemeMode) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PanelCard(modifier = modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp)) {
+            Text(text = "Appearance", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(10.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ThemeMode.entries.forEach { entry ->
+                    FilterChip(
+                        selected = mode == entry,
+                        onClick = { onSelect(entry) },
+                        label = { Text(entry.label) }
+                    )
+                }
+            }
         }
     }
 }
