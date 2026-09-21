@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Hotel_Management_App"
+rootProject.name = "Hotel_Booking_App"
 include(":app")
  

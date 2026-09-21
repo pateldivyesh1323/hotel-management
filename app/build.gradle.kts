@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.hotel_management_app"
+    namespace = "com.example.hotel_booking_app"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.hotel_management_app"
+        applicationId = "com.example.hotel_booking_app"
         minSdk = 29
         targetSdk = 37
         versionCode = 1
