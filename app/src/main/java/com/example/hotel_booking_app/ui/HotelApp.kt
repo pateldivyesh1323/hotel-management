@@ -2,11 +2,14 @@ package com.example.hotel_booking_app.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.Luggage
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -18,6 +21,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -39,6 +43,7 @@ import com.example.hotel_booking_app.data.HotelRepository
 import com.example.hotel_booking_app.data.StayRequest
 import com.example.hotel_booking_app.ui.booking.CheckoutScreen
 import com.example.hotel_booking_app.ui.explore.ExploreScreen
+import com.example.hotel_booking_app.ui.explore.HomeScreen
 import com.example.hotel_booking_app.ui.explore.HotelDetailScreen
 import com.example.hotel_booking_app.ui.profile.ProfileScreen
 import com.example.hotel_booking_app.ui.saved.SavedScreen
@@ -48,12 +53,14 @@ import java.time.LocalDate
 
 private enum class Tab(val label: String, val icon: ImageVector) {
     EXPLORE("Explore", Icons.Filled.Search),
+    HOTELS("Hotels", Icons.Filled.Hotel),
     SAVED("Saved", Icons.Filled.Favorite),
     TRIPS("Trips", Icons.Filled.Luggage),
     PROFILE("Profile", Icons.Filled.Person)
 }
 
 private const val ROUTE_MAIN = "main"
+private const val ROUTE_RESULTS = "results"
 private const val ROUTE_HOTEL = "hotel:"
 private const val ROUTE_CHECKOUT = "checkout:"
 private const val ROUTE_TRIP = "trip:"
@@ -142,11 +149,25 @@ fun HotelApp(repo: HotelRepository, modifier: Modifier = Modifier) {
                 }
             }
         },
+        contentWindowInsets = if (onMain && currentTab == Tab.EXPLORE) {
+            WindowInsets(0, 0, 0, 0)
+        } else {
+            ScaffoldDefaults.contentWindowInsets
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { scaffoldPadding ->
         val padding = screenPadding(scaffoldPadding)
 
         when {
+            route == ROUTE_RESULTS -> ExploreScreen(
+                repo = repo,
+                query = query,
+                onQueryChange = { query = it },
+                stay = stay,
+                onOpenHotel = { push("$ROUTE_HOTEL$it") },
+                contentPadding = padding
+            )
+
             route.startsWith(ROUTE_HOTEL) -> HotelDetailScreen(
                 repo = repo,
                 hotelId = route.removePrefix(ROUTE_HOTEL),
@@ -177,12 +198,21 @@ fun HotelApp(repo: HotelRepository, modifier: Modifier = Modifier) {
             )
 
             else -> when (currentTab) {
-                Tab.EXPLORE -> ExploreScreen(
+                Tab.EXPLORE -> HomeScreen(
+                    query = query,
+                    onQueryChange = { query = it },
+                    stay = stay,
+                    today = repo.currentDate(),
+                    onStayChange = ::changeStay,
+                    onSearch = { push(ROUTE_RESULTS) },
+                    modifier = Modifier.padding(bottom = scaffoldPadding.calculateBottomPadding())
+                )
+
+                Tab.HOTELS -> ExploreScreen(
                     repo = repo,
                     query = query,
                     onQueryChange = { query = it },
                     stay = stay,
-                    onStayChange = ::changeStay,
                     onOpenHotel = { push("$ROUTE_HOTEL$it") },
                     contentPadding = padding
                 )
@@ -211,6 +241,7 @@ fun HotelApp(repo: HotelRepository, modifier: Modifier = Modifier) {
 }
 
 private fun titleFor(route: String): String = when {
+    route == ROUTE_RESULTS -> "Hotels"
     route.startsWith(ROUTE_HOTEL) -> "Hotel"
     route.startsWith(ROUTE_CHECKOUT) -> "Confirm booking"
     route.startsWith(ROUTE_TRIP) -> "Booking"

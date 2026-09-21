@@ -15,16 +15,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,8 +42,10 @@ import com.example.hotel_booking_app.ui.components.EmptyHint
 import com.example.hotel_booking_app.ui.components.HotelCard
 import com.example.hotel_booking_app.ui.components.IconBadge
 import com.example.hotel_booking_app.ui.components.PanelCard
-import com.example.hotel_booking_app.ui.components.StayPicker
+import com.example.hotel_booking_app.ui.guestsLabel
 import com.example.hotel_booking_app.ui.money
+import com.example.hotel_booking_app.ui.nightsLabel
+import com.example.hotel_booking_app.ui.stayRange
 
 private val RatingSteps = listOf(0f, 4f, 4.5f, 4.8f)
 private val PriceSteps = listOf(0, 150, 250, 400)
@@ -59,7 +57,6 @@ fun ExploreScreen(
     query: String,
     onQueryChange: (String) -> Unit,
     stay: StayRequest,
-    onStayChange: (StayRequest) -> Unit,
     onOpenHotel: (String) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
@@ -85,12 +82,12 @@ fun ExploreScreen(
         item {
             Column {
                 Text(
-                    text = "Find your next stay",
+                    text = if (query.isBlank()) "All destinations" else query,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Search ${repo.hotels.size} hand-picked hotels",
+                    text = "${stayRange(stay.checkIn, stay.checkOut)} · ${nightsLabel(stay.nights)} · ${guestsLabel(stay.guests)}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -118,32 +115,6 @@ fun ExploreScreen(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
-                }
-            }
-        }
-
-        item {
-            PanelCard(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(14.dp)) {
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = onQueryChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("destination_field"),
-                        label = { Text("Destination or hotel") },
-                        singleLine = true,
-                        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                        trailingIcon = {
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { onQueryChange("") }) {
-                                    Icon(Icons.Filled.Clear, contentDescription = "Clear search")
-                                }
-                            }
-                        }
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    StayPicker(stay = stay, today = repo.currentDate(), onChange = onStayChange)
                 }
             }
         }
