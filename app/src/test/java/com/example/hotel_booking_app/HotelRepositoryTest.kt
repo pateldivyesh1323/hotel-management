@@ -23,7 +23,7 @@ class HotelRepositoryTest {
         val repo = repo()
         val before = repo.trips(TripStage.UPCOMING).size
 
-        val outcome = repo.book("htl-bali-deluxe", "Ann Lee", "", "ann@example.com", stay, "", false, "", false)
+        val outcome = repo.book("htl-munnar-deluxe", "Ann Lee", "", "ann@example.com", stay, "", false, "", false)
         val id = (outcome as BookingOutcome.Confirmed).bookingId
 
         assertEquals(before + 1, repo.trips(TripStage.UPCOMING).size)
@@ -34,13 +34,13 @@ class HotelRepositoryTest {
     @Test
     fun soldOutRoomsAreRejected() {
         val repo = repo()
-        val units = repo.offer("htl-bali-suite")!!.units
+        val units = repo.offer("htl-munnar-suite")!!.units
         repeat(units) {
-            assertTrue(repo.book("htl-bali-suite", "Ann", "", "ann@example.com", stay, "", false, "", false) is BookingOutcome.Confirmed)
+            assertTrue(repo.book("htl-munnar-suite", "Ann", "", "ann@example.com", stay, "", false, "", false) is BookingOutcome.Confirmed)
         }
-        val outcome = repo.book("htl-bali-suite", "Ann", "", "ann@example.com", stay, "", false, "", false)
+        val outcome = repo.book("htl-munnar-suite", "Ann", "", "ann@example.com", stay, "", false, "", false)
         assertTrue(outcome is BookingOutcome.Rejected)
-        assertTrue(repo.availableOffers("htl-bali", stay).none { it.id == "htl-bali-suite" })
+        assertTrue(repo.availableOffers("htl-munnar", stay).none { it.id == "htl-munnar-suite" })
     }
 
     @Test

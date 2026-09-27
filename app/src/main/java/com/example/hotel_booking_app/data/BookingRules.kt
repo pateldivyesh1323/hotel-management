@@ -5,7 +5,7 @@ import java.time.LocalDate
 object BookingRules {
 
     const val TAX_PERCENT = 12
-    const val BREAKFAST_RATE = 12
+    const val BREAKFAST_RATE = 500
 
     private val promoCodes = mapOf("WELCOME10" to 10, "SUMMER15" to 15, "STAYLONGER20" to 20)
 

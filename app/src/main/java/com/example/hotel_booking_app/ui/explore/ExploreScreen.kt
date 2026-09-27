@@ -48,7 +48,7 @@ import com.example.hotel_booking_app.ui.nightsLabel
 import com.example.hotel_booking_app.ui.stayRange
 
 private val RatingSteps = listOf(0f, 4f, 4.5f, 4.8f)
-private val PriceSteps = listOf(0, 150, 250, 400)
+private val PriceSteps = listOf(0, 8000, 15000, 25000)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

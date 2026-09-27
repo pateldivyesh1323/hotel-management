@@ -31,7 +31,7 @@ class BookingRulesTest {
 
     @Test
     fun confirmedBookingsConsumeUnitsAndCancelledOnesDoNot() {
-        val offer = offers.first { it.id == "htl-lisbon-suite" }
+        val offer = offers.first { it.id == "htl-udaipur-suite" }
         val booking = SampleData.bookings(today).first().copy(
             roomId = offer.id,
             hotelId = offer.hotelId,
@@ -45,8 +45,8 @@ class BookingRulesTest {
 
     @Test
     fun searchFiltersByDestinationAndSortsByPrice() {
-        val london = BookingRules.search(hotels, offers, emptyList(), "london", stay, noFilters, SortOrder.RECOMMENDED)
-        assertEquals(listOf("htl-london"), london.map { it.hotel.id })
+        val delhi = BookingRules.search(hotels, offers, emptyList(), "delhi", stay, noFilters, SortOrder.RECOMMENDED)
+        assertEquals(listOf("htl-delhi"), delhi.map { it.hotel.id })
 
         val cheapestFirst = BookingRules.search(hotels, offers, emptyList(), "", stay, noFilters, SortOrder.PRICE_LOW)
         assertEquals(cheapestFirst.map { it.fromRate }.sorted(), cheapestFirst.map { it.fromRate })
@@ -70,17 +70,17 @@ class BookingRulesTest {
     @Test
     fun breakfastAndPromoAdjustThePrice() {
         val price = BookingRules.price(200, 3, 2, true, 10)
-        assertEquals(72, price.breakfast)
+        assertEquals(3000, price.breakfast)
         assertEquals(60, price.discount)
-        assertEquals(685, price.total)
+        assertEquals(3964, price.total)
         assertEquals(10, BookingRules.promoPercent(" welcome10 "))
         assertNull(BookingRules.promoPercent("nope"))
     }
 
     @Test
     fun filtersNarrowResults() {
-        val pricey = BookingRules.search(hotels, offers, emptyList(), "", stay, SearchFilters(0f, 120, emptySet()), SortOrder.PRICE_LOW)
-        assertTrue(pricey.all { it.fromRate <= 120 } && pricey.isNotEmpty())
+        val pricey = BookingRules.search(hotels, offers, emptyList(), "", stay, SearchFilters(0f, 7000, emptySet()), SortOrder.PRICE_LOW)
+        assertTrue(pricey.all { it.fromRate <= 7000 } && pricey.isNotEmpty())
         val pools = BookingRules.search(hotels, offers, emptyList(), "", stay, SearchFilters(4.8f, null, setOf(Amenity.POOL)), SortOrder.RATING)
         assertTrue(pools.all { it.hotel.rating >= 4.8f && Amenity.POOL in it.hotel.amenities } && pools.isNotEmpty())
     }

@@ -29,7 +29,7 @@ object SampleData {
                 highlights = listOf("Sea-facing rooms", "Rooftop pool bar", "10 min to the Gateway of India"),
                 photoIndex = 0
             ),
-            baseRate = 145,
+            baseRate = 12000,
             units = 4
         ),
         HotelSeed(
@@ -48,7 +48,7 @@ object SampleData {
                 highlights = listOf("2 min walk to the beach", "Lagoon pool", "Free bike hire"),
                 photoIndex = 1
             ),
-            baseRate = 110,
+            baseRate = 9000,
             units = 5
         ),
         HotelSeed(
@@ -67,173 +67,179 @@ object SampleData {
                 highlights = listOf("Rooftop dinners", "Walk to the fort", "Cooking classes on request"),
                 photoIndex = 2
             ),
-            baseRate = 95,
+            baseRate = 7500,
             units = 3
         ),
         HotelSeed(
             Hotel(
-                id = "htl-london",
-                name = "The Kensington Row",
-                city = "London",
-                country = "United Kingdom",
-                address = "27 Queen's Gate",
-                description = "A townhouse hotel steps from the museums and Hyde Park, with " +
-                    "a quiet library bar and rooms dressed in tailored British fabrics.",
-                stars = 5,
-                rating = 4.8f,
-                reviewCount = 2107,
-                amenities = listOf(Amenity.WIFI, Amenity.GYM, Amenity.SPA, Amenity.BREAKFAST),
-                highlights = listOf("Next to the V&A and Science Museum", "Library bar", "Concierge theatre bookings"),
-                photoIndex = 3
-            ),
-            baseRate = 240,
-            units = 3
-        ),
-        HotelSeed(
-            Hotel(
-                id = "htl-lisbon",
-                name = "Alfama Terrace Hotel",
-                city = "Lisbon",
-                country = "Portugal",
-                address = "Rua das Portas do Sol 9",
-                description = "Tiled façades and a terrace above the Tagus: a boutique stay in " +
-                    "the oldest quarter of Lisbon, close to the tram 28 line and the fado houses.",
-                stars = 4,
-                rating = 4.4f,
-                reviewCount = 691,
-                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PET_FRIENDLY),
-                highlights = listOf("Tram 28 at the door", "Terrace with river views", "Fado nights on Fridays"),
-                photoIndex = 4
-            ),
-            baseRate = 130,
-            units = 3
-        ),
-        HotelSeed(
-            Hotel(
-                id = "htl-bali",
-                name = "Ubud Rice Terrace Retreat",
-                city = "Ubud",
-                country = "Indonesia",
-                address = "Jalan Raya Tegallalang",
-                description = "Open-air villas above the rice paddies, with infinity pools, " +
-                    "daily yoga and a spa built around the valley.",
-                stars = 5,
-                rating = 4.9f,
-                reviewCount = 976,
-                amenities = listOf(Amenity.WIFI, Amenity.POOL, Amenity.SPA, Amenity.BREAKFAST, Amenity.AIRPORT_SHUTTLE),
-                highlights = listOf("Private plunge pools", "Daily yoga", "Rice-terrace walks"),
-                photoIndex = 5
-            ),
-            baseRate = 165,
-            units = 2
-        ),
-        HotelSeed(
-            Hotel(
-                id = "htl-dubai",
-                name = "Palm Skyline Hotel",
-                city = "Dubai",
-                country = "United Arab Emirates",
-                address = "Crescent Road, Palm Jumeirah",
-                description = "A tower of glass on the Palm's crescent with a private beach, an infinity pool 40 floors up and a spa that stays open past midnight.",
+                id = "htl-delhi",
+                name = "Lutyens Bungalow Hotel",
+                city = "Delhi",
+                country = "India",
+                address = "4 Prithviraj Road",
+                description = "A colonial-era bungalow turned heritage hotel in Lutyens' Delhi, " +
+                    "with a manicured lawn, a fine-dining courtyard and Humayun's Tomb minutes away.",
                 stars = 5,
                 rating = 4.6f,
-                reviewCount = 1832,
-                amenities = listOf(Amenity.WIFI, Amenity.POOL, Amenity.SPA, Amenity.GYM, Amenity.BREAKFAST, Amenity.PARKING),
-                highlights = listOf("Private beach", "Infinity pool on floor 40", "Late-night spa"),
-                photoIndex = 6
+                reviewCount = 1745,
+                amenities = listOf(Amenity.WIFI, Amenity.GYM, Amenity.SPA, Amenity.BREAKFAST, Amenity.AIRPORT_SHUTTLE),
+                highlights = listOf("Lawn dining", "10 min to Humayun's Tomb", "Airport transfers on request"),
+                photoIndex = 3
             ),
-            baseRate = 210,
+            baseRate = 11000,
+            units = 4
+        ),
+        HotelSeed(
+            Hotel(
+                id = "htl-udaipur",
+                name = "Lake Pichola Palace",
+                city = "Udaipur",
+                country = "India",
+                address = "Lake Palace Road, Pichola",
+                description = "A lakefront haveli with domed pavilions and a rooftop restaurant " +
+                    "looking straight across Lake Pichola to the City Palace.",
+                stars = 5,
+                rating = 4.8f,
+                reviewCount = 1032,
+                amenities = listOf(Amenity.WIFI, Amenity.POOL, Amenity.SPA, Amenity.BREAKFAST, Amenity.PARKING),
+                highlights = listOf("Lake-facing rooftop dining", "Boat rides at sunset", "Views of the City Palace"),
+                photoIndex = 4
+            ),
+            baseRate = 14000,
+            units = 3
+        ),
+        HotelSeed(
+            Hotel(
+                id = "htl-agra",
+                name = "Taj View Heritage",
+                city = "Agra",
+                country = "India",
+                address = "22 Taj East Gate Road",
+                description = "A heritage property a short walk from the Taj Mahal's east gate, " +
+                    "with a terrace restaurant that watches the marble change colour at dawn.",
+                stars = 4,
+                rating = 4.5f,
+                reviewCount = 987,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PARKING, Amenity.AIRPORT_SHUTTLE),
+                highlights = listOf("Sunrise Taj Mahal views", "5 min to the east gate", "Guided city tours"),
+                photoIndex = 5
+            ),
+            baseRate = 8000,
             units = 5
         ),
         HotelSeed(
             Hotel(
-                id = "htl-paris",
-                name = "Maison Le Marais",
-                city = "Paris",
-                country = "France",
-                address = "18 Rue des Francs Bourgeois",
-                description = "A 17th-century townhouse turned boutique hotel in the Marais, with a courtyard breakfast room and galleries on every corner.",
+                id = "htl-munnar",
+                name = "Misty Tea Estate Retreat",
+                city = "Munnar",
+                country = "India",
+                address = "Pallivasal Estate Road",
+                description = "Cottages set inside a working tea estate in the Western Ghats, " +
+                    "with mist rolling over the plantation each morning and a spa built for the chill.",
                 stars = 4,
-                rating = 4.5f,
-                reviewCount = 1120,
-                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PET_FRIENDLY),
-                highlights = listOf("Courtyard breakfast", "5 min to Place des Vosges", "Metro at the corner"),
-                photoIndex = 7
+                rating = 4.7f,
+                reviewCount = 654,
+                amenities = listOf(Amenity.WIFI, Amenity.SPA, Amenity.BREAKFAST, Amenity.PARKING),
+                highlights = listOf("Tea estate walks", "Mountain-view cottages", "Bonfire evenings"),
+                photoIndex = 6
             ),
-            baseRate = 190,
+            baseRate = 7000,
             units = 3
         ),
         HotelSeed(
             Hotel(
-                id = "htl-tokyo",
-                name = "Shibuya Lantern Hotel",
-                city = "Tokyo",
-                country = "Japan",
-                address = "2-14 Udagawacho, Shibuya",
-                description = "Calm, compact and impeccably run: tatami-inspired rooms, a rooftop onsen bath and the Shibuya crossing five minutes away on foot.",
+                id = "htl-manali",
+                name = "Solang Valley Chalet",
+                city = "Manali",
+                country = "India",
+                address = "Solang Valley Road",
+                description = "Wood-and-stone chalets facing the Solang slopes, with a bonfire " +
+                    "deck, mountain-view rooms and easy access to the ropeway.",
                 stars = 4,
-                rating = 4.7f,
-                reviewCount = 1547,
-                amenities = listOf(Amenity.WIFI, Amenity.SPA, Amenity.GYM, Amenity.BREAKFAST, Amenity.AIRPORT_SHUTTLE),
-                highlights = listOf("Rooftop onsen", "Shibuya crossing 5 min", "Airport limousine bus stop"),
+                rating = 4.5f,
+                reviewCount = 812,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PARKING, Amenity.PET_FRIENDLY),
+                highlights = listOf("Solang ropeway nearby", "Bonfire deck", "Mountain-facing rooms"),
+                photoIndex = 7
+            ),
+            baseRate = 6500,
+            units = 4
+        ),
+        HotelSeed(
+            Hotel(
+                id = "htl-rishikesh",
+                name = "Ganga Riverside Retreat",
+                city = "Rishikesh",
+                country = "India",
+                address = "Tapovan, Laxman Jhula Road",
+                description = "A riverside retreat above the Ganga with a yoga deck, a cafe " +
+                    "overlooking Laxman Jhula and the evening Ganga Aarti a short walk away.",
+                stars = 4,
+                rating = 4.6f,
+                reviewCount = 728,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PARKING),
+                highlights = listOf("Riverside yoga deck", "Walk to the Ganga Aarti", "Cafe with river views"),
                 photoIndex = 8
             ),
-            baseRate = 155,
-            units = 4
+            baseRate = 6000,
+            units = 5
         ),
         HotelSeed(
             Hotel(
-                id = "htl-newyork",
-                name = "Hudson Yards Suites",
-                city = "New York",
-                country = "United States",
-                address = "512 West 34th Street",
-                description = "Suite-only living on Manhattan's west side, with full kitchens, skyline views and the High Line as your front garden.",
+                id = "htl-varanasi",
+                name = "Ghat View Heritage Hotel",
+                city = "Varanasi",
+                country = "India",
+                address = "Assi Ghat Road",
+                description = "A restored haveli overlooking Assi Ghat, with rooftop views of " +
+                    "the sunrise boat traffic and the evening aarti on the Ganga.",
                 stars = 4,
-                rating = 4.3f,
-                reviewCount = 2264,
-                amenities = listOf(Amenity.WIFI, Amenity.GYM, Amenity.PARKING, Amenity.PET_FRIENDLY),
-                highlights = listOf("Kitchen in every room", "Steps from the High Line", "24-hour gym"),
+                rating = 4.5f,
+                reviewCount = 693,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.AIRPORT_SHUTTLE),
+                highlights = listOf("Rooftop ghat views", "Sunrise boat rides", "Walk to the evening aarti"),
                 photoIndex = 9
             ),
-            baseRate = 260,
+            baseRate = 6800,
             units = 4
         ),
         HotelSeed(
             Hotel(
-                id = "htl-bangkok",
-                name = "Chao Phraya Riverside",
-                city = "Bangkok",
-                country = "Thailand",
-                address = "89 Charoen Krung Road",
-                description = "Teak, silk and a lawn running down to the river. Take the hotel boat to the Grand Palace or stay in for a Thai massage by the pool.",
-                stars = 5,
-                rating = 4.8f,
-                reviewCount = 1390,
-                amenities = listOf(Amenity.WIFI, Amenity.POOL, Amenity.SPA, Amenity.BREAKFAST, Amenity.AIRPORT_SHUTTLE),
-                highlights = listOf("Free river shuttle boat", "Riverside pool", "Thai cooking school"),
+                id = "htl-amritsar",
+                name = "Golden Temple View Hotel",
+                city = "Amritsar",
+                country = "India",
+                address = "12 Golden Temple Road",
+                description = "A five-minute walk from the Golden Temple, with rooftop dining " +
+                    "over the old city and complimentary transfers for the langar hall.",
+                stars = 4,
+                rating = 4.6f,
+                reviewCount = 1204,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PARKING, Amenity.AIRPORT_SHUTTLE),
+                highlights = listOf("5 min to the Golden Temple", "Rooftop dining", "Old city views"),
                 photoIndex = 10
             ),
-            baseRate = 120,
-            units = 4
+            baseRate = 6200,
+            units = 5
         ),
         HotelSeed(
             Hotel(
-                id = "htl-santorini",
-                name = "Caldera Blue Suites",
-                city = "Santorini",
-                country = "Greece",
-                address = "Oia Main Street",
-                description = "White-washed cave suites cut into the cliff at Oia, each with a terrace facing the caldera and the famous sunset.",
-                stars = 5,
-                rating = 4.9f,
-                reviewCount = 803,
-                amenities = listOf(Amenity.WIFI, Amenity.POOL, Amenity.BREAKFAST, Amenity.SPA),
-                highlights = listOf("Sunset terraces", "Cave suites with plunge pools", "Sunset dinner service"),
+                id = "htl-pondicherry",
+                name = "French Quarter Boutique Hotel",
+                city = "Pondicherry",
+                country = "India",
+                address = "14 Rue Romain Rolland",
+                description = "A pastel colonial townhouse in the French Quarter, with a courtyard " +
+                    "cafe, bicycles for the promenade and the beach a short ride away.",
+                stars = 4,
+                rating = 4.6f,
+                reviewCount = 589,
+                amenities = listOf(Amenity.WIFI, Amenity.BREAKFAST, Amenity.PET_FRIENDLY),
+                highlights = listOf("French Quarter courtyard", "Free bicycle hire", "10 min to the beach"),
                 photoIndex = 11
             ),
-            baseRate = 250,
-            units = 2
+            baseRate = 7200,
+            units = 3
         )
     )
 
@@ -258,8 +264,8 @@ object SampleData {
                 id = "${seed.hotel.id}-${type.name.lowercase()}",
                 hotelId = seed.hotel.id,
                 type = type,
-                nightlyRate = seed.baseRate * typeMultipliers.getValue(type) / 100 / 5 * 5,
-                units = (seed.units + unitAdjustment).coerceAtLeast(1),
+                nightlyRate = seed.baseRate * typeMultipliers.getValue(type) / 100 / 100 * 100,
+                units = (seed.units + unitAdjustment).coerceAtLeast(5),
                 beds = beds,
                 sizeSqm = size
             )
@@ -273,32 +279,32 @@ object SampleData {
         review("rv-4", "htl-goa", "James Okoro", 4f, "Great pool and friendly service. Wi-Fi was patchy near the villas.", today.minusDays(31)),
         review("rv-5", "htl-jaipur", "Rahul Menon", 5f, "Like sleeping inside a museum, with far better beds. The rooftop dinner was the highlight.", today.minusDays(22)),
         review("rv-6", "htl-jaipur", "Priya Nair", 4.5f, "Beautifully restored and easy to reach the fort. Book the courtyard rooms.", today.minusDays(57)),
-        review("rv-7", "htl-london", "Marcus Bell", 5f, "Immaculate service and a five-minute walk to three museums.", today.minusDays(12)),
-        review("rv-8", "htl-london", "Aditi Sharma", 4.5f, "Small rooms as London goes, but quiet and beautifully finished.", today.minusDays(63)),
-        review("rv-9", "htl-lisbon", "Lena Fischer", 4.5f, "The terrace at dusk is worth the trip alone. Steep streets, so pack light.", today.minusDays(15)),
-        review("rv-10", "htl-lisbon", "Sofia Rossi", 4f, "Charming and central. Breakfast pastries were the best of our trip.", today.minusDays(40)),
-        review("rv-11", "htl-bali", "Rahul Menon", 5f, "Our villa looked over the paddies and the staff arranged everything, from yoga to a driver.", today.minusDays(7)),
-        review("rv-12", "htl-bali", "James Okoro", 5f, "The most peaceful place I have stayed. The spa is exceptional.", today.minusDays(29)),
-        review("rv-13", "htl-dubai", "Marcus Bell", 4.5f, "The pool at sunset is unreal and the beach is properly private. Pricey dinners.", today.minusDays(11)),
-        review("rv-14", "htl-dubai", "Priya Nair", 4.5f, "Enormous rooms and excellent breakfast. The shuttle to the mall is a big plus.", today.minusDays(36)),
-        review("rv-15", "htl-paris", "Lena Fischer", 5f, "Courtyard breakfast, a perfect location and staff who booked our dinners.", today.minusDays(20)),
-        review("rv-16", "htl-paris", "Sofia Rossi", 4f, "Lovely, but the stairs are steep and the rooms are small.", today.minusDays(52)),
-        review("rv-17", "htl-tokyo", "Rahul Menon", 5f, "Spotless, silent and the onsen on the roof is a treat after a day of walking.", today.minusDays(8)),
-        review("rv-18", "htl-tokyo", "Aditi Sharma", 4.5f, "Ideal base for Shibuya. The limousine bus stop right outside made the airport easy.", today.minusDays(47)),
-        review("rv-19", "htl-newyork", "James Okoro", 4f, "Great to have a kitchen and the High Line is right there. Street noise on lower floors.", today.minusDays(14)),
-        review("rv-20", "htl-newyork", "Marcus Bell", 4.5f, "Suites are huge by New York standards and the gym is properly equipped.", today.minusDays(38)),
-        review("rv-21", "htl-bangkok", "Priya Nair", 5f, "The river boat to the Grand Palace is a lovely touch. The best massage of my life.", today.minusDays(10)),
-        review("rv-22", "htl-bangkok", "Sofia Rossi", 4.5f, "Gorgeous grounds and wonderful staff. Book the river-view rooms.", today.minusDays(33)),
-        review("rv-23", "htl-santorini", "Lena Fischer", 5f, "Worth every penny. Watching the sunset from our own terrace is something I will remember.", today.minusDays(6)),
-        review("rv-24", "htl-santorini", "Aditi Sharma", 5f, "Immaculate cave suite, kind hosts and a breakfast delivered to the terrace.", today.minusDays(25))
+        review("rv-7", "htl-delhi", "Marcus Bell", 5f, "Immaculate service and the lawn dinner was a lovely touch.", today.minusDays(12)),
+        review("rv-8", "htl-delhi", "Aditi Sharma", 4.5f, "Quiet, heritage feel and close to Humayun's Tomb.", today.minusDays(63)),
+        review("rv-9", "htl-udaipur", "Lena Fischer", 4.5f, "The lake view at dusk is worth the trip alone. Steep steps, so pack light.", today.minusDays(15)),
+        review("rv-10", "htl-udaipur", "Sofia Rossi", 4f, "Charming and central. Breakfast on the rooftop was the best of our trip.", today.minusDays(40)),
+        review("rv-11", "htl-munnar", "Rahul Menon", 5f, "Our cottage looked over the tea estate and the staff arranged everything, from walks to a driver.", today.minusDays(7)),
+        review("rv-12", "htl-munnar", "James Okoro", 5f, "The most peaceful place I have stayed. The mist over the plantation is unreal.", today.minusDays(29)),
+        review("rv-13", "htl-manali", "Marcus Bell", 4.5f, "The mountain view is unreal and the bonfire deck is properly cosy. Pricey taxis.", today.minusDays(11)),
+        review("rv-14", "htl-manali", "Priya Nair", 4.5f, "Comfortable rooms and excellent breakfast. Easy access to the ropeway.", today.minusDays(36)),
+        review("rv-15", "htl-rishikesh", "Lena Fischer", 5f, "Riverside yoga at sunrise and staff who booked our rafting trip.", today.minusDays(20)),
+        review("rv-16", "htl-rishikesh", "Sofia Rossi", 4f, "Lovely, but the lane is steep and rooms are simple.", today.minusDays(52)),
+        review("rv-17", "htl-varanasi", "Rahul Menon", 5f, "Spotless, calm and the ghat view at sunrise is a treat.", today.minusDays(8)),
+        review("rv-18", "htl-varanasi", "Aditi Sharma", 4.5f, "Ideal base for the ghats. Walking distance to the evening aarti made it easy.", today.minusDays(47)),
+        review("rv-19", "htl-amritsar", "James Okoro", 4f, "Great to be so close to the Golden Temple. Some street noise on lower floors.", today.minusDays(14)),
+        review("rv-20", "htl-amritsar", "Marcus Bell", 4.5f, "Rooftop dining is huge by local standards and the staff are properly attentive.", today.minusDays(38)),
+        review("rv-21", "htl-pondicherry", "Priya Nair", 5f, "The bicycle hire around the French Quarter is a lovely touch. Best coffee of my trip.", today.minusDays(10)),
+        review("rv-22", "htl-pondicherry", "Sofia Rossi", 4.5f, "Gorgeous courtyard and wonderful staff. Book the sea-facing rooms.", today.minusDays(33)),
+        review("rv-23", "htl-agra", "Lena Fischer", 5f, "Worth every rupee. Watching the sunrise over the Taj from our own terrace is something I will remember.", today.minusDays(6)),
+        review("rv-24", "htl-agra", "Aditi Sharma", 5f, "Immaculate room, kind hosts and a breakfast delivered with a Taj view.", today.minusDays(25))
     )
 
     fun bookings(today: LocalDate): List<Booking> = listOf(
-        booking("bk-1001", "htl-goa-deluxe", 165, today.plusDays(12), today.plusDays(16), 2, BookingStatus.CONFIRMED, "Sea-facing room if possible", today.minusDays(6), true, 10, false),
-        booking("bk-1002", "htl-london-standard", 240, today.plusDays(30), today.plusDays(33), 1, BookingStatus.CONFIRMED, "", today.minusDays(2), false, 0, true),
-        booking("bk-1003", "htl-jaipur-suite", 225, today.minusDays(40), today.minusDays(37), 3, BookingStatus.CONFIRMED, "Rooftop dinner on the first night", today.minusDays(70), true, 0, false),
-        booking("bk-1004", "htl-mumbai-standard", 145, today.minusDays(90), today.minusDays(88), 2, BookingStatus.CONFIRMED, "", today.minusDays(100), false, 0, false),
-        booking("bk-1005", "htl-lisbon-deluxe", 195, today.plusDays(20), today.plusDays(22), 2, BookingStatus.CANCELLED, "", today.minusDays(14), false, 0, false)
+        booking("bk-1001", "htl-goa-deluxe", 13500, today.plusDays(12), today.plusDays(16), 2, BookingStatus.CONFIRMED, "Sea-facing room if possible", today.minusDays(6), true, 10, false),
+        booking("bk-1002", "htl-delhi-standard", 11000, today.plusDays(30), today.plusDays(33), 1, BookingStatus.CONFIRMED, "", today.minusDays(2), false, 0, true),
+        booking("bk-1003", "htl-jaipur-suite", 18000, today.minusDays(40), today.minusDays(37), 3, BookingStatus.CONFIRMED, "Rooftop dinner on the first night", today.minusDays(70), true, 0, false),
+        booking("bk-1004", "htl-mumbai-standard", 12000, today.minusDays(90), today.minusDays(88), 2, BookingStatus.CONFIRMED, "", today.minusDays(100), false, 0, false),
+        booking("bk-1005", "htl-udaipur-deluxe", 21000, today.plusDays(20), today.plusDays(22), 2, BookingStatus.CANCELLED, "", today.minusDays(14), false, 0, false)
     )
 
     private fun review(

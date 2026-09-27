@@ -19,7 +19,7 @@ fun stayRange(checkIn: LocalDate, checkOut: LocalDate): String =
         "${checkIn.full()} – ${checkOut.full()}"
     }
 
-fun money(amount: Int): String = "$" + "%,d".format(amount)
+fun money(amount: Int): String = "₹" + "%,d".format(amount)
 
 fun nightsLabel(nights: Int): String = if (nights == 1) "1 night" else "$nights nights"
 
