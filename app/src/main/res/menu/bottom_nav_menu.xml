@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/tab_explore" android:icon="@drawable/ic_search" android:title="Explore" />
+    <item android:id="@+id/tab_hotels" android:icon="@drawable/ic_hotel" android:title="Hotels" />
+    <item android:id="@+id/tab_saved" android:icon="@drawable/ic_favorite" android:title="Saved" />
+    <item android:id="@+id/tab_trips" android:icon="@drawable/ic_luggage" android:title="Trips" />
+    <item android:id="@+id/tab_profile" android:icon="@drawable/ic_person" android:title="Profile" />
+</menu>

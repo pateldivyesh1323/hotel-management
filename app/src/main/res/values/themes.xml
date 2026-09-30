@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Hotel_Booking_App" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Hotel_Booking_App" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/lime_primary</item>
+        <item name="colorOnPrimary">@color/lime_on_primary</item>
+        <item name="colorPrimaryContainer">@color/lime_container</item>
+        <item name="colorOnPrimaryContainer">@color/lime_on_container</item>
+
+        <item name="colorSecondary">@color/stone_secondary</item>
+        <item name="colorOnSecondary">@color/stone_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/stone_container</item>
+        <item name="colorOnSecondaryContainer">@color/stone_on_container</item>
+
+        <item name="colorTertiary">@color/blue_tertiary</item>
+        <item name="colorOnTertiary">@color/blue_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/blue_container</item>
+        <item name="colorOnTertiaryContainer">@color/blue_on_container</item>
+
+        <item name="android:colorBackground">@color/light_background</item>
+        <item name="colorSurface">@color/light_surface</item>
+        <item name="colorOnSurface">@color/light_on_surface</item>
+        <item name="colorSurfaceVariant">@color/light_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/light_on_surface_variant</item>
+        <item name="colorSurfaceContainer">@color/light_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/light_surface</item>
+        <item name="colorSurfaceContainerHighest">@color/light_surface_variant</item>
+        <item name="colorOutline">@color/light_outline</item>
+        <item name="colorOutlineVariant">@color/light_outline</item>
+
+        <item name="colorError">@color/error_light</item>
+        <item name="colorOnError">@color/on_error_light</item>
+        <item name="colorErrorContainer">@color/error_container_light</item>
+        <item name="colorOnErrorContainer">@color/on_error_container_light</item>
+
+        <item name="shapeAppearanceCornerExtraSmall">@style/ShapeAppearance.App.ExtraSmall</item>
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.App.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.App.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.App.Large</item>
+        <item name="shapeAppearanceCornerExtraLarge">@style/ShapeAppearance.App.ExtraLarge</item>
+
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+
+    <style name="ShapeAppearance.App.ExtraSmall" parent="ShapeAppearance.Material3.Corner.ExtraSmall">
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="ShapeAppearance.App.Small" parent="ShapeAppearance.Material3.Corner.Small">
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="ShapeAppearance.App.Medium" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerSize">18dp</item>
+    </style>
+    <style name="ShapeAppearance.App.Large" parent="ShapeAppearance.Material3.Corner.Large">
+        <item name="cornerSize">22dp</item>
+    </style>
+    <style name="ShapeAppearance.App.ExtraLarge" parent="ShapeAppearance.Material3.Corner.ExtraLarge">
+        <item name="cornerSize">28dp</item>
+    </style>
 </resources>
