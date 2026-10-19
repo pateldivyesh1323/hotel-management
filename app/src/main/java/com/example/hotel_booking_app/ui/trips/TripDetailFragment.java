@@ -83,8 +83,8 @@ public class TripDetailFragment extends Fragment implements HasTitle {
         binding.tripName.setText(hotel.name);
         binding.tripAddress.setText(hotel.address + ", " + hotel.getLocation());
 
-        StatusTones.Tone tone = StatusTones.forStage(requireContext(), stage);
-        binding.tripStage.setText(stage.label);
+        StatusTones.Tone tone = StatusTones.forBooking(requireContext(), booking, stage);
+        binding.tripStage.setText(StatusTones.label(booking, stage));
         binding.tripStage.getBackground().mutate().setColorFilter(tone.container, PorterDuff.Mode.SRC_IN);
         binding.tripStage.setTextColor(tone.content);
 
@@ -112,6 +112,9 @@ public class TripDetailFragment extends Fragment implements HasTitle {
         Views.addDetailRow(binding.stayRows, "Check out", Format.fullDate(booking.checkOut));
         Views.addDetailRow(binding.stayRows, "Length", Format.nightsLabel(booking.getNights()));
         Views.addDetailRow(binding.stayRows, "Room", offer.type.label + " · " + offer.beds);
+        if (booking.rooms > 1) {
+            Views.addDetailRow(binding.stayRows, "Rooms", booking.rooms + " rooms");
+        }
         Views.addDetailRow(binding.stayRows, "Guests", Format.guestsLabel(booking.guests));
         Views.addDetailRow(binding.stayRows, "Booked on", Format.fullDate(booking.bookedOn));
         Views.addDetailRow(binding.stayRows, "Breakfast",
@@ -184,11 +187,16 @@ public class TripDetailFragment extends Fragment implements HasTitle {
     private void confirmCancel(Hotel hotel, Booking booking) {
         String message = hotel.name + ", " + Format.fullDate(booking.checkIn)
                 + " – " + Format.fullDate(booking.checkOut) + ". This can't be undone.";
+        View body = getLayoutInflater().inflate(R.layout.view_cancel_reason, null);
+        TextInputEditText reason = body.findViewById(R.id.cancel_reason_input);
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Cancel this booking?")
                 .setMessage(message)
+                .setView(body)
                 .setPositiveButton("Cancel booking", (dialog, which) -> {
-                    String result = nav.repository().cancelBooking(booking.id);
+                    Editable text = reason.getText();
+                    String result = nav.repository().cancelBooking(booking.id,
+                            text == null ? "" : text.toString());
                     nav.showMessage(result != null ? result : "Booking cancelled");
                     render();
                 })

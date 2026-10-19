@@ -6,8 +6,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -31,6 +34,14 @@ public class HotelRepository {
 
         StoredState saved = storage != null ? storage.load() : null;
         if (saved != null) {
+            if (saved.hotels != null && !saved.hotels.isEmpty()) {
+                catalog.clear();
+                catalog.addAll(saved.hotels);
+            }
+            if (saved.offers != null && !saved.offers.isEmpty()) {
+                offers.clear();
+                offers.addAll(saved.offers);
+            }
             bookings.addAll(saved.bookings);
             reviews.addAll(SampleData.reviews(today.get()));
             reviews.addAll(saved.reviews);
@@ -145,7 +156,14 @@ public class HotelRepository {
     }
 
     public List<Booking> trips(TripStage stage) {
-        return BookingRules.trips(bookings, stage, today.get());
+        List<Booking> staged = BookingRules.trips(bookings, stage, today.get());
+        List<Booking> withHotel = new ArrayList<>();
+        for (Booking booking : staged) {
+            if (hotel(booking.hotelId) != null) {
+                withHotel.add(booking);
+            }
+        }
+        return withHotel;
     }
 
     public TripStage stage(Booking booking) {
@@ -178,18 +196,23 @@ public class HotelRepository {
     }
 
     public BookingOutcome book(String offerId, String guestName, String guestPhone, String guestEmail,
-                               StayRequest stay, String specialRequests, boolean breakfastIncluded,
-                               String promoCode, boolean payAtHotel) {
+                               StayRequest stay, int rooms, String specialRequests,
+                               boolean breakfastIncluded, String promoCode, boolean payAtHotel) {
         RoomOffer offer = offer(offerId);
         if (offer == null) {
             return BookingOutcome.rejected("That room is no longer offered");
         }
-        String problem = BookingRules.validate(guestName, guestEmail, offer, stay, today.get());
+        String problem = BookingRules.validate(guestName, guestEmail, offer, stay, rooms, today.get());
         if (problem != null) {
             return BookingOutcome.rejected(problem);
         }
-        if (unitsLeft(offer, stay) == 0) {
+        int available = unitsLeft(offer, stay);
+        if (available == 0) {
             return BookingOutcome.rejected(offer.type.label + " rooms are sold out for those dates");
+        }
+        if (rooms > available) {
+            return BookingOutcome.rejected("Only " + available + " " + offer.type.label
+                    + " room" + (available == 1 ? "" : "s") + " left for those dates");
         }
         int promoPercent;
         if (promoCode.trim().isEmpty()) {
@@ -211,13 +234,17 @@ public class HotelRepository {
                 stay.checkIn,
                 stay.checkOut,
                 stay.guests,
-                BookingStatus.CONFIRMED,
+                rooms,
+                BookingStatus.PENDING,
                 specialRequests.trim(),
                 today.get(),
                 offer.nightlyRate,
                 breakfastIncluded,
                 promoPercent,
-                payAtHotel);
+                payAtHotel,
+                null,
+                "",
+                RefundStatus.NONE);
         bookings.add(booking);
         profile = new GuestProfile(booking.guestName, booking.guestEmail, booking.guestPhone);
         persist();
@@ -225,7 +252,7 @@ public class HotelRepository {
     }
 
     @Nullable
-    public String cancelBooking(String bookingId) {
+    public String cancelBooking(String bookingId, String reason) {
         Booking booking = booking(bookingId);
         if (booking == null) {
             return "Booking not found";
@@ -233,9 +260,244 @@ public class HotelRepository {
         if (!canCancel(booking)) {
             return "Only a confirmed booking that hasn't started can be cancelled";
         }
-        bookings.set(bookings.indexOf(booking), booking.withStatus(BookingStatus.CANCELLED));
+        cancel(booking, BookingStatus.CANCELLED, reason, "Cancelled by guest");
         persist();
         return null;
+    }
+
+    @Nullable
+    public String confirmBooking(String bookingId) {
+        return decide(bookingId, BookingStatus.CONFIRMED);
+    }
+
+    @Nullable
+    public String rejectBooking(String bookingId, String reason) {
+        Booking booking = booking(bookingId);
+        if (booking == null) {
+            return "Booking not found";
+        }
+        if (booking.status != BookingStatus.PENDING) {
+            return "Only a pending reservation can be rejected";
+        }
+        cancel(booking, BookingStatus.REJECTED, reason, "Rejected by admin");
+        persist();
+        return null;
+    }
+
+    @Nullable
+    private String decide(String bookingId, BookingStatus decision) {
+        Booking booking = booking(bookingId);
+        if (booking == null) {
+            return "Booking not found";
+        }
+        if (booking.status != BookingStatus.PENDING) {
+            return "Only a pending reservation can be " + decision.label.toLowerCase();
+        }
+        bookings.set(bookings.indexOf(booking), booking.withStatus(decision));
+        persist();
+        return null;
+    }
+
+    @Nullable
+    public String setBookingStatus(String bookingId, BookingStatus status) {
+        Booking booking = booking(bookingId);
+        if (booking == null) {
+            return "Booking not found";
+        }
+        if (booking.status == status) {
+            return null;
+        }
+        Booking updated;
+        if (status == BookingStatus.CANCELLED || status == BookingStatus.REJECTED) {
+            if (booking.cancelledOn != null) {
+                updated = booking.withStatus(status);
+            } else {
+                String fallback = status == BookingStatus.REJECTED ? "Rejected by admin"
+                        : "Cancelled by admin";
+                updated = cancellation(booking, status, fallback, fallback);
+            }
+        } else {
+            updated = booking.withCancellation(status, null, "", RefundStatus.NONE);
+        }
+        bookings.set(bookings.indexOf(booking), updated);
+        persist();
+        return null;
+    }
+
+    @Nullable
+    public String setRefundStatus(String bookingId, RefundStatus refundStatus) {
+        Booking booking = booking(bookingId);
+        if (booking == null) {
+            return "Booking not found";
+        }
+        bookings.set(bookings.indexOf(booking), booking.withRefundStatus(refundStatus));
+        persist();
+        return null;
+    }
+
+    private void cancel(Booking booking, BookingStatus status, String reason, String fallback) {
+        bookings.set(bookings.indexOf(booking), cancellation(booking, status, reason, fallback));
+    }
+
+    private Booking cancellation(Booking booking, BookingStatus status, String reason, String fallback) {
+        String resolvedReason = reason.trim().isEmpty() ? fallback : reason.trim();
+        RefundStatus refund = booking.payAtHotel ? RefundStatus.NONE : RefundStatus.PENDING;
+        return booking.withCancellation(status, today.get(), resolvedReason, refund);
+    }
+
+    public String addHotel(String name, String city, String country, String address,
+                           String description, int stars, List<Amenity> amenities, int photoIndex,
+                           int baseRate) {
+        String hotelId = newHotelId();
+        catalog.add(new Hotel(hotelId, name, city, country, address, description, stars, 0f, 0,
+                new ArrayList<>(amenities), new ArrayList<>(), photoIndex));
+        for (RoomType type : RoomType.values()) {
+            offers.add(new RoomOffer(
+                    hotelId + "-" + type.name().toLowerCase(Locale.ROOT),
+                    hotelId,
+                    type,
+                    SampleData.rateFor(baseRate, type),
+                    SampleData.ROOM_UNITS,
+                    SampleData.beds(type),
+                    SampleData.sizeSqm(type)));
+        }
+        persist();
+        return hotelId;
+    }
+
+    @Nullable
+    public String updateOffer(String offerId, int nightlyRate, int units) {
+        RoomOffer offer = offer(offerId);
+        if (offer == null) {
+            return "That room is no longer offered";
+        }
+        offers.set(offers.indexOf(offer), offer.withPriceAndUnits(nightlyRate, units));
+        persist();
+        return null;
+    }
+
+    @Nullable
+    public String updateHotel(String hotelId, String name, String city, String country, String address,
+                              String description, int stars, List<Amenity> amenities, int photoIndex) {
+        Hotel hotel = hotel(hotelId);
+        if (hotel == null) {
+            return "That hotel is no longer listed";
+        }
+        catalog.set(catalog.indexOf(hotel), hotel.withInfo(name, city, country, address, description,
+                stars, new ArrayList<>(amenities), photoIndex));
+        persist();
+        return null;
+    }
+
+    @Nullable
+    public String deleteHotel(String hotelId) {
+        Hotel hotel = hotel(hotelId);
+        if (hotel == null) {
+            return "That hotel is no longer listed";
+        }
+        catalog.remove(hotel);
+        offers.removeIf(offer -> offer.hotelId.equals(hotelId));
+        persist();
+        return null;
+    }
+
+    public int totalHotels() {
+        return catalog.size();
+    }
+
+    public int totalBookings() {
+        return bookings.size();
+    }
+
+    public int cancelledCount() {
+        int count = 0;
+        for (Booking booking : bookings) {
+            if (booking.status == BookingStatus.CANCELLED || booking.status == BookingStatus.REJECTED) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int revenue() {
+        int total = 0;
+        for (Booking booking : bookings) {
+            if (booking.status == BookingStatus.CONFIRMED) {
+                total += BookingRules.price(booking).total;
+            }
+        }
+        return total;
+    }
+
+    public int totalUsers() {
+        return users().size();
+    }
+
+    public List<GuestAccount> users() {
+        Map<String, GuestAccount> byEmail = new LinkedHashMap<>();
+        for (Booking booking : bookings) {
+            String key = booking.guestEmail.toLowerCase(Locale.ROOT);
+            GuestAccount existing = byEmail.get(key);
+            int count = existing == null ? 1 : existing.bookings + 1;
+            byEmail.put(key, new GuestAccount(booking.guestName, booking.guestEmail,
+                    booking.guestPhone, count));
+        }
+        return new ArrayList<>(byEmail.values());
+    }
+
+    public List<Booking> bookingsForGuest(String email) {
+        List<Booking> matching = new ArrayList<>();
+        for (Booking booking : bookings) {
+            if (booking.guestEmail.equalsIgnoreCase(email)) {
+                matching.add(booking);
+            }
+        }
+        Collections.sort(matching, (a, b) -> b.bookedOn.compareTo(a.bookedOn));
+        return matching;
+    }
+
+    public List<Booking> cancellations() {
+        List<Booking> cancelled = new ArrayList<>();
+        for (Booking booking : bookings) {
+            if (booking.status == BookingStatus.CANCELLED || booking.status == BookingStatus.REJECTED) {
+                cancelled.add(booking);
+            }
+        }
+        Collections.sort(cancelled, (a, b) -> compareCancelledOn(b, a));
+        return cancelled;
+    }
+
+    private int compareCancelledOn(Booking a, Booking b) {
+        if (a.cancelledOn == null && b.cancelledOn == null) {
+            return 0;
+        }
+        if (a.cancelledOn == null) {
+            return -1;
+        }
+        if (b.cancelledOn == null) {
+            return 1;
+        }
+        return a.cancelledOn.compareTo(b.cancelledOn);
+    }
+
+    public int pendingCount() {
+        int count = 0;
+        for (Booking booking : bookings) {
+            if (booking.status == BookingStatus.PENDING) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int availableRoomsTonight() {
+        LocalDate checkIn = today.get();
+        LocalDate checkOut = checkIn.plusDays(1);
+        int available = 0;
+        for (RoomOffer offer : offers) {
+            available += BookingRules.unitsLeft(offer, bookings, checkIn, checkOut);
+        }
+        return available;
     }
 
     @Nullable
@@ -286,6 +548,10 @@ public class HotelRepository {
     }
 
     public void resetToSample() {
+        catalog.clear();
+        catalog.addAll(SampleData.hotels());
+        offers.clear();
+        offers.addAll(SampleData.offers());
         bookings.clear();
         reviews.clear();
         favorites.clear();
@@ -312,6 +578,19 @@ public class HotelRepository {
         return "bk-" + (highest + 1);
     }
 
+    private String newHotelId() {
+        int highest = 0;
+        for (Hotel hotel : catalog) {
+            if (hotel.id.startsWith("htl-own-")) {
+                try {
+                    highest = Math.max(highest, Integer.parseInt(hotel.id.substring(8)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return "htl-own-" + (highest + 1);
+    }
+
     private void persist() {
         if (storage == null) {
             return;
@@ -323,6 +602,7 @@ public class HotelRepository {
             }
         }
         Set<String> favoriteSet = new LinkedHashSet<>(favorites);
-        storage.save(new StoredState(new ArrayList<>(bookings), userReviews, favoriteSet, profile));
+        storage.save(new StoredState(new ArrayList<>(catalog), new ArrayList<>(offers),
+                new ArrayList<>(bookings), userReviews, favoriteSet, profile));
     }
 }

@@ -23,16 +23,16 @@ public final class SampleData {
         }
     }
 
+    public static final int ROOM_UNITS = 5;
+
     private static final class RoomDetail {
         final String beds;
         final int sizeSqm;
-        final int unitAdjustment;
         final int multiplier;
 
-        RoomDetail(String beds, int sizeSqm, int unitAdjustment, int multiplier) {
+        RoomDetail(String beds, int sizeSqm, int multiplier) {
             this.beds = beds;
             this.sizeSqm = sizeSqm;
-            this.unitAdjustment = unitAdjustment;
             this.multiplier = multiplier;
         }
     }
@@ -142,13 +142,25 @@ public final class SampleData {
     private static RoomDetail detailFor(RoomType type) {
         switch (type) {
             case STANDARD:
-                return new RoomDetail("1 queen bed", 24, 0, 100);
+                return new RoomDetail("1 queen bed", 24, 100);
             case DELUXE:
-                return new RoomDetail("1 king bed", 34, 0, 150);
+                return new RoomDetail("1 king bed", 34, 150);
             case SUITE:
             default:
-                return new RoomDetail("1 king bed + sofa bed", 56, -1, 240);
+                return new RoomDetail("1 king bed + sofa bed", 56, 240);
         }
+    }
+
+    public static int rateFor(int baseRate, RoomType type) {
+        return baseRate * detailFor(type).multiplier / 100 / 100 * 100;
+    }
+
+    public static String beds(RoomType type) {
+        return detailFor(type).beds;
+    }
+
+    public static int sizeSqm(RoomType type) {
+        return detailFor(type).sizeSqm;
     }
 
     public static List<Hotel> hotels() {
@@ -164,14 +176,12 @@ public final class SampleData {
         for (HotelSeed seed : SEEDS) {
             for (RoomType type : RoomType.values()) {
                 RoomDetail detail = detailFor(type);
-                int nightlyRate = seed.baseRate * detail.multiplier / 100 / 100 * 100;
-                int units = Math.max(seed.units + detail.unitAdjustment, 5);
                 offers.add(new RoomOffer(
                         seed.hotel.id + "-" + type.name().toLowerCase(Locale.ROOT),
                         seed.hotel.id,
                         type,
-                        nightlyRate,
-                        units,
+                        rateFor(seed.baseRate, type),
+                        ROOM_UNITS,
                         detail.beds,
                         detail.sizeSqm));
             }
@@ -210,11 +220,12 @@ public final class SampleData {
 
     public static List<Booking> bookings(LocalDate today) {
         return Arrays.asList(
-                booking("bk-1001", "htl-goa-deluxe", 13500, today.plusDays(12), today.plusDays(16), 2, BookingStatus.CONFIRMED, "Sea-facing room if possible", today.minusDays(6), true, 10, false),
-                booking("bk-1002", "htl-delhi-standard", 11000, today.plusDays(30), today.plusDays(33), 1, BookingStatus.CONFIRMED, "", today.minusDays(2), false, 0, true),
-                booking("bk-1003", "htl-jaipur-suite", 18000, today.minusDays(40), today.minusDays(37), 3, BookingStatus.CONFIRMED, "Rooftop dinner on the first night", today.minusDays(70), true, 0, false),
-                booking("bk-1004", "htl-mumbai-standard", 12000, today.minusDays(90), today.minusDays(88), 2, BookingStatus.CONFIRMED, "", today.minusDays(100), false, 0, false),
-                booking("bk-1005", "htl-udaipur-deluxe", 21000, today.plusDays(20), today.plusDays(22), 2, BookingStatus.CANCELLED, "", today.minusDays(14), false, 0, false)
+                booking("bk-1001", "htl-goa-deluxe", 13500, today.plusDays(12), today.plusDays(16), 2, 1, BookingStatus.CONFIRMED, "Sea-facing room if possible", today.minusDays(6), true, 10, false),
+                booking("bk-1002", "htl-delhi-standard", 11000, today.plusDays(30), today.plusDays(33), 1, 1, BookingStatus.PENDING, "", today.minusDays(2), false, 0, true),
+                booking("bk-1003", "htl-jaipur-suite", 18000, today.minusDays(40), today.minusDays(37), 3, 2, BookingStatus.CONFIRMED, "Rooftop dinner on the first night", today.minusDays(70), true, 0, false),
+                booking("bk-1004", "htl-mumbai-standard", 12000, today.minusDays(90), today.minusDays(88), 2, 1, BookingStatus.CONFIRMED, "", today.minusDays(100), false, 0, false),
+                booking("bk-1005", "htl-udaipur-deluxe", 21000, today.plusDays(20), today.plusDays(22), 2, 1, BookingStatus.CANCELLED, "", today.minusDays(14), false, 0, false)
+                        .withCancellation(BookingStatus.CANCELLED, today.minusDays(12), "Changed travel plans", RefundStatus.REFUNDED)
         );
     }
 
@@ -224,12 +235,12 @@ public final class SampleData {
     }
 
     private static Booking booking(String id, String roomId, int nightlyRate, LocalDate checkIn,
-                                   LocalDate checkOut, int guests, BookingStatus status,
+                                   LocalDate checkOut, int guests, int rooms, BookingStatus status,
                                    String specialRequests, LocalDate bookedOn,
                                    boolean breakfastIncluded, int promoPercent, boolean payAtHotel) {
         String hotelId = roomId.substring(0, roomId.lastIndexOf('-'));
         return new Booking(id, hotelId, roomId, PROFILE.name, PROFILE.phone, PROFILE.email,
-                checkIn, checkOut, guests, status, specialRequests, bookedOn, nightlyRate,
-                breakfastIncluded, promoPercent, payAtHotel);
+                checkIn, checkOut, guests, rooms, status, specialRequests, bookedOn, nightlyRate,
+                breakfastIncluded, promoPercent, payAtHotel, null, "", RefundStatus.NONE);
     }
 }

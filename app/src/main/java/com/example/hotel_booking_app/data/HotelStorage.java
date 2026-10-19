@@ -32,6 +32,14 @@ public class HotelStorage {
     public void save(StoredState state) {
         try {
             JSONObject root = new JSONObject();
+            JSONArray hotels = new JSONArray();
+            for (Hotel hotel : state.hotels) {
+                hotels.put(hotelToJson(hotel));
+            }
+            JSONArray offers = new JSONArray();
+            for (RoomOffer offer : state.offers) {
+                offers.put(offerToJson(offer));
+            }
             JSONArray bookings = new JSONArray();
             for (Booking booking : state.bookings) {
                 bookings.put(bookingToJson(booking));
@@ -40,6 +48,8 @@ public class HotelStorage {
             for (Review review : state.reviews) {
                 reviews.put(reviewToJson(review));
             }
+            root.put("hotels", hotels);
+            root.put("offers", offers);
             root.put("bookings", bookings);
             root.put("reviews", reviews);
             root.put("favorites", new JSONArray(state.favorites));
@@ -74,6 +84,22 @@ public class HotelStorage {
         }
         try {
             JSONObject root = new JSONObject(raw);
+            List<Hotel> hotels = null;
+            JSONArray hotelsJson = root.optJSONArray("hotels");
+            if (hotelsJson != null) {
+                hotels = new ArrayList<>();
+                for (int i = 0; i < hotelsJson.length(); i++) {
+                    hotels.add(hotelFromJson(hotelsJson.getJSONObject(i)));
+                }
+            }
+            List<RoomOffer> offers = null;
+            JSONArray offersJson = root.optJSONArray("offers");
+            if (offersJson != null) {
+                offers = new ArrayList<>();
+                for (int i = 0; i < offersJson.length(); i++) {
+                    offers.add(offerFromJson(offersJson.getJSONObject(i)));
+                }
+            }
             JSONArray bookingsJson = root.getJSONArray("bookings");
             JSONArray reviewsJson = root.getJSONArray("reviews");
             JSONArray favoritesJson = root.getJSONArray("favorites");
@@ -89,13 +115,83 @@ public class HotelStorage {
             for (int i = 0; i < favoritesJson.length(); i++) {
                 favorites.add(favoritesJson.getString(i));
             }
-            return new StoredState(bookings, reviews, favorites,
+            return new StoredState(hotels, offers, bookings, reviews, favorites,
                     profileFromJson(root.getJSONObject("profile")));
         } catch (JSONException e) {
             Log.w(TAG, "Discarding unreadable saved state", e);
             prefs.edit().remove(KEY_STATE).apply();
             return null;
         }
+    }
+
+    private JSONObject hotelToJson(Hotel hotel) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", hotel.id);
+        json.put("name", hotel.name);
+        json.put("city", hotel.city);
+        json.put("country", hotel.country);
+        json.put("address", hotel.address);
+        json.put("description", hotel.description);
+        json.put("stars", hotel.stars);
+        json.put("rating", (double) hotel.rating);
+        json.put("reviewCount", hotel.reviewCount);
+        JSONArray amenities = new JSONArray();
+        for (Amenity amenity : hotel.amenities) {
+            amenities.put(amenity.name());
+        }
+        json.put("amenities", amenities);
+        json.put("highlights", new JSONArray(hotel.highlights));
+        json.put("photoIndex", hotel.photoIndex);
+        return json;
+    }
+
+    private Hotel hotelFromJson(JSONObject json) throws JSONException {
+        JSONArray amenitiesJson = json.getJSONArray("amenities");
+        List<Amenity> amenities = new ArrayList<>();
+        for (int i = 0; i < amenitiesJson.length(); i++) {
+            amenities.add(Amenity.valueOf(amenitiesJson.getString(i)));
+        }
+        JSONArray highlightsJson = json.getJSONArray("highlights");
+        List<String> highlights = new ArrayList<>();
+        for (int i = 0; i < highlightsJson.length(); i++) {
+            highlights.add(highlightsJson.getString(i));
+        }
+        return new Hotel(
+                json.getString("id"),
+                json.getString("name"),
+                json.getString("city"),
+                json.getString("country"),
+                json.getString("address"),
+                json.getString("description"),
+                json.getInt("stars"),
+                (float) json.getDouble("rating"),
+                json.getInt("reviewCount"),
+                amenities,
+                highlights,
+                json.getInt("photoIndex"));
+    }
+
+    private JSONObject offerToJson(RoomOffer offer) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", offer.id);
+        json.put("hotelId", offer.hotelId);
+        json.put("type", offer.type.name());
+        json.put("nightlyRate", offer.nightlyRate);
+        json.put("units", offer.units);
+        json.put("beds", offer.beds);
+        json.put("sizeSqm", offer.sizeSqm);
+        return json;
+    }
+
+    private RoomOffer offerFromJson(JSONObject json) throws JSONException {
+        return new RoomOffer(
+                json.getString("id"),
+                json.getString("hotelId"),
+                RoomType.valueOf(json.getString("type")),
+                json.getInt("nightlyRate"),
+                json.getInt("units"),
+                json.getString("beds"),
+                json.getInt("sizeSqm"));
     }
 
     private JSONObject bookingToJson(Booking booking) throws JSONException {
@@ -109,6 +205,7 @@ public class HotelStorage {
         json.put("checkIn", booking.checkIn.toString());
         json.put("checkOut", booking.checkOut.toString());
         json.put("guests", booking.guests);
+        json.put("rooms", booking.rooms);
         json.put("status", booking.status.name());
         json.put("specialRequests", booking.specialRequests);
         json.put("bookedOn", booking.bookedOn.toString());
@@ -116,6 +213,11 @@ public class HotelStorage {
         json.put("breakfastIncluded", booking.breakfastIncluded);
         json.put("promoPercent", booking.promoPercent);
         json.put("payAtHotel", booking.payAtHotel);
+        if (booking.cancelledOn != null) {
+            json.put("cancelledOn", booking.cancelledOn.toString());
+        }
+        json.put("cancellationReason", booking.cancellationReason);
+        json.put("refundStatus", booking.refundStatus.name());
         return json;
     }
 
@@ -130,13 +232,17 @@ public class HotelStorage {
                 LocalDate.parse(json.getString("checkIn")),
                 LocalDate.parse(json.getString("checkOut")),
                 json.getInt("guests"),
+                json.optInt("rooms", 1),
                 BookingStatus.valueOf(json.getString("status")),
                 json.getString("specialRequests"),
                 LocalDate.parse(json.getString("bookedOn")),
                 json.getInt("nightlyRate"),
                 json.getBoolean("breakfastIncluded"),
                 json.getInt("promoPercent"),
-                json.getBoolean("payAtHotel"));
+                json.getBoolean("payAtHotel"),
+                json.has("cancelledOn") ? LocalDate.parse(json.getString("cancelledOn")) : null,
+                json.optString("cancellationReason", ""),
+                RefundStatus.valueOf(json.optString("refundStatus", RefundStatus.NONE.name())));
     }
 
     private JSONObject reviewToJson(Review review) throws JSONException {

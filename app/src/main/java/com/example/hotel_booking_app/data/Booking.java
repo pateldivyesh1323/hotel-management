@@ -1,5 +1,7 @@
 package com.example.hotel_booking_app.data;
 
+import androidx.annotation.Nullable;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -13,6 +15,7 @@ public final class Booking {
     public final LocalDate checkIn;
     public final LocalDate checkOut;
     public final int guests;
+    public final int rooms;
     public final BookingStatus status;
     public final String specialRequests;
     public final LocalDate bookedOn;
@@ -20,11 +23,16 @@ public final class Booking {
     public final boolean breakfastIncluded;
     public final int promoPercent;
     public final boolean payAtHotel;
+    @Nullable
+    public final LocalDate cancelledOn;
+    public final String cancellationReason;
+    public final RefundStatus refundStatus;
 
     public Booking(String id, String hotelId, String roomId, String guestName, String guestPhone,
-                   String guestEmail, LocalDate checkIn, LocalDate checkOut, int guests,
+                   String guestEmail, LocalDate checkIn, LocalDate checkOut, int guests, int rooms,
                    BookingStatus status, String specialRequests, LocalDate bookedOn, int nightlyRate,
-                   boolean breakfastIncluded, int promoPercent, boolean payAtHotel) {
+                   boolean breakfastIncluded, int promoPercent, boolean payAtHotel,
+                   @Nullable LocalDate cancelledOn, String cancellationReason, RefundStatus refundStatus) {
         this.id = id;
         this.hotelId = hotelId;
         this.roomId = roomId;
@@ -34,6 +42,7 @@ public final class Booking {
         this.checkIn = checkIn;
         this.checkOut = checkOut;
         this.guests = guests;
+        this.rooms = rooms;
         this.status = status;
         this.specialRequests = specialRequests;
         this.bookedOn = bookedOn;
@@ -41,6 +50,9 @@ public final class Booking {
         this.breakfastIncluded = breakfastIncluded;
         this.promoPercent = promoPercent;
         this.payAtHotel = payAtHotel;
+        this.cancelledOn = cancelledOn;
+        this.cancellationReason = cancellationReason;
+        this.refundStatus = refundStatus;
     }
 
     public int getNights() {
@@ -48,12 +60,25 @@ public final class Booking {
     }
 
     public boolean holdsRoom() {
-        return status == BookingStatus.CONFIRMED;
+        return status == BookingStatus.CONFIRMED || status == BookingStatus.PENDING;
     }
 
     public Booking withStatus(BookingStatus newStatus) {
         return new Booking(id, hotelId, roomId, guestName, guestPhone, guestEmail, checkIn, checkOut,
-                guests, newStatus, specialRequests, bookedOn, nightlyRate, breakfastIncluded,
-                promoPercent, payAtHotel);
+                guests, rooms, newStatus, specialRequests, bookedOn, nightlyRate, breakfastIncluded,
+                promoPercent, payAtHotel, cancelledOn, cancellationReason, refundStatus);
+    }
+
+    public Booking withCancellation(BookingStatus newStatus, LocalDate newCancelledOn,
+                                    String reason, RefundStatus newRefundStatus) {
+        return new Booking(id, hotelId, roomId, guestName, guestPhone, guestEmail, checkIn, checkOut,
+                guests, rooms, newStatus, specialRequests, bookedOn, nightlyRate, breakfastIncluded,
+                promoPercent, payAtHotel, newCancelledOn, reason, newRefundStatus);
+    }
+
+    public Booking withRefundStatus(RefundStatus newRefundStatus) {
+        return new Booking(id, hotelId, roomId, guestName, guestPhone, guestEmail, checkIn, checkOut,
+                guests, rooms, status, specialRequests, bookedOn, nightlyRate, breakfastIncluded,
+                promoPercent, payAtHotel, cancelledOn, cancellationReason, newRefundStatus);
     }
 }

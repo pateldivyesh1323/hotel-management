@@ -33,6 +33,10 @@ public final class Photos {
         return HOTEL_PHOTOS[Math.floorMod(photoIndex, HOTEL_PHOTOS.length)];
     }
 
+    public static int hotelPhotoCount() {
+        return HOTEL_PHOTOS.length;
+    }
+
     public static int avatar(String name) {
         return GUEST_AVATARS[Math.floorMod(charSum(name), GUEST_AVATARS.length)];
     }

@@ -68,8 +68,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.ViewHolder> {
                 + " · " + Format.nightsLabel(booking.getNights()));
         holder.price.setText(Format.money(BookingRules.price(booking).total));
 
-        StatusTones.Tone tone = StatusTones.forStage(holder.status.getContext(), stage);
-        holder.status.setText(stage.label);
+        StatusTones.Tone tone = StatusTones.forBooking(holder.status.getContext(), booking, stage);
+        holder.status.setText(StatusTones.label(booking, stage));
         holder.status.getBackground().mutate().setColorFilter(tone.container, PorterDuff.Mode.SRC_IN);
         holder.status.setTextColor(tone.content);
 

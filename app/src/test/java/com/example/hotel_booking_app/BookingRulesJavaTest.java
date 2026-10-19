@@ -12,6 +12,7 @@ import com.example.hotel_booking_app.data.BookingRules;
 import com.example.hotel_booking_app.data.BookingStatus;
 import com.example.hotel_booking_app.data.Hotel;
 import com.example.hotel_booking_app.data.HotelResult;
+import com.example.hotel_booking_app.data.RefundStatus;
 import com.example.hotel_booking_app.data.RoomOffer;
 import com.example.hotel_booking_app.data.SampleData;
 import com.example.hotel_booking_app.data.SearchFilters;
@@ -64,13 +65,23 @@ public class BookingRulesJavaTest {
     public void confirmedBookingsConsumeUnitsAndCancelledOnesDoNot() {
         RoomOffer offer = offer("htl-udaipur-suite");
         Booking booking = new Booking("bk-x", offer.hotelId, offer.id, "Aditi", "", "a@b.co",
-                stay.checkIn, stay.checkOut, 2, BookingStatus.CONFIRMED, "", today, offer.nightlyRate,
-                false, 0, false);
+                stay.checkIn, stay.checkOut, 2, 1, BookingStatus.CONFIRMED, "", today, offer.nightlyRate,
+                false, 0, false, null, "", RefundStatus.NONE);
         assertEquals(offer.units - 1,
                 BookingRules.unitsLeft(offer, Collections.singletonList(booking), stay.checkIn, stay.checkOut));
         Booking cancelled = booking.withStatus(BookingStatus.CANCELLED);
         assertEquals(offer.units,
                 BookingRules.unitsLeft(offer, Collections.singletonList(cancelled), stay.checkIn, stay.checkOut));
+    }
+
+    @Test
+    public void multiRoomBookingsConsumeThatManyUnits() {
+        RoomOffer offer = offer("htl-udaipur-suite");
+        Booking booking = new Booking("bk-x", offer.hotelId, offer.id, "Aditi", "", "a@b.co",
+                stay.checkIn, stay.checkOut, 2, 3, BookingStatus.PENDING, "", today, offer.nightlyRate,
+                false, 0, false, null, "", RefundStatus.NONE);
+        assertEquals(offer.units - 3,
+                BookingRules.unitsLeft(offer, Collections.singletonList(booking), stay.checkIn, stay.checkOut));
     }
 
     @Test
@@ -109,16 +120,22 @@ public class BookingRulesJavaTest {
 
     @Test
     public void pricingAddsTaxesToTheNightlyTotal() {
-        assertEquals(600, BookingRules.price(200, 3, 2, false, 0).subtotal);
-        assertEquals(72, BookingRules.price(200, 3, 2, false, 0).taxes);
-        assertEquals(672, BookingRules.price(200, 3, 2, false, 0).total);
+        assertEquals(600, BookingRules.price(200, 3, 2, 1, false, 0).subtotal);
+        assertEquals(72, BookingRules.price(200, 3, 2, 1, false, 0).taxes);
+        assertEquals(672, BookingRules.price(200, 3, 2, 1, false, 0).total);
+    }
+
+    @Test
+    public void roomCountMultipliesTheRoomSubtotal() {
+        assertEquals(1200, BookingRules.price(200, 3, 2, 2, false, 0).subtotal);
+        assertEquals(1344, BookingRules.price(200, 3, 2, 2, false, 0).total);
     }
 
     @Test
     public void breakfastAndPromoAdjustThePrice() {
-        assertEquals(3000, BookingRules.price(200, 3, 2, true, 10).breakfast);
-        assertEquals(60, BookingRules.price(200, 3, 2, true, 10).discount);
-        assertEquals(3964, BookingRules.price(200, 3, 2, true, 10).total);
+        assertEquals(3000, BookingRules.price(200, 3, 2, 1, true, 10).breakfast);
+        assertEquals(60, BookingRules.price(200, 3, 2, 1, true, 10).discount);
+        assertEquals(3964, BookingRules.price(200, 3, 2, 1, true, 10).total);
         assertEquals(Integer.valueOf(10), BookingRules.promoPercent(" welcome10 "));
         assertNull(BookingRules.promoPercent("nope"));
     }
@@ -145,11 +162,12 @@ public class BookingRulesJavaTest {
     @Test
     public void validationRejectsBadInput() {
         RoomOffer offer = offers.get(0);
-        assertNotNull(BookingRules.validate("", "a@b.co", offer, stay, today));
-        assertNotNull(BookingRules.validate("Ann", "nope", offer, stay, today));
-        assertNotNull(BookingRules.validate("Ann", "a@b.co", offer, stay.withCheckOut(stay.checkIn), today));
-        assertNotNull(BookingRules.validate("Ann", "a@b.co", offer, stay.withGuests(3), today));
-        assertNull(BookingRules.validate("Ann", "a@b.co", offer, stay, today));
+        assertNotNull(BookingRules.validate("", "a@b.co", offer, stay, 1, today));
+        assertNotNull(BookingRules.validate("Ann", "nope", offer, stay, 1, today));
+        assertNotNull(BookingRules.validate("Ann", "a@b.co", offer, stay.withCheckOut(stay.checkIn), 1, today));
+        assertNotNull(BookingRules.validate("Ann", "a@b.co", offer, stay.withGuests(3), 1, today));
+        assertNotNull(BookingRules.validate("Ann", "a@b.co", offer, stay, 0, today));
+        assertNull(BookingRules.validate("Ann", "a@b.co", offer, stay, 1, today));
     }
 
     @Test

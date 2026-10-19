@@ -36,4 +36,11 @@ public final class Hotel {
     public String getLocation() {
         return city + ", " + country;
     }
+
+    public Hotel withInfo(String newName, String newCity, String newCountry, String newAddress,
+                          String newDescription, int newStars, List<Amenity> newAmenities,
+                          int newPhotoIndex) {
+        return new Hotel(id, newName, newCity, newCountry, newAddress, newDescription, newStars,
+                rating, reviewCount, newAmenities, highlights, newPhotoIndex);
+    }
 }

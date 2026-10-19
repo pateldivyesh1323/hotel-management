@@ -47,7 +47,7 @@ public final class BookingRules {
         for (Booking booking : bookings) {
             if (booking.roomId.equals(offer.id) && booking.holdsRoom()
                     && overlaps(booking.checkIn, booking.checkOut, checkIn, checkOut)) {
-                taken++;
+                taken += booking.rooms;
             }
         }
         return Math.max(offer.units - taken, 0);
@@ -127,9 +127,9 @@ public final class BookingRules {
         }
     }
 
-    public static PriceBreakdown price(int nightlyRate, int nights, int guests,
+    public static PriceBreakdown price(int nightlyRate, int nights, int guests, int rooms,
                                        boolean breakfastIncluded, int promoPercent) {
-        int subtotal = nightlyRate * nights;
+        int subtotal = nightlyRate * nights * rooms;
         int breakfast = breakfastIncluded ? BREAKFAST_RATE * guests * nights : 0;
         int discount = subtotal * promoPercent / 100;
         int taxable = subtotal + breakfast - discount;
@@ -138,15 +138,18 @@ public final class BookingRules {
     }
 
     public static PriceBreakdown price(Booking booking) {
-        return price(booking.nightlyRate, booking.getNights(), booking.guests,
+        return price(booking.nightlyRate, booking.getNights(), booking.guests, booking.rooms,
                 booking.breakfastIncluded, booking.promoPercent);
     }
 
     @Nullable
     public static String validate(String guestName, String guestEmail, RoomOffer offer,
-                                  StayRequest stay, LocalDate today) {
+                                  StayRequest stay, int rooms, LocalDate today) {
         if (guestName.trim().isEmpty()) {
             return "Enter the guest's name";
+        }
+        if (rooms < 1) {
+            return "Select at least one room";
         }
         if (!guestEmail.contains("@") || guestEmail.trim().length() < 5) {
             return "Enter a valid email address";
@@ -167,7 +170,7 @@ public final class BookingRules {
     }
 
     public static TripStage stage(Booking booking, LocalDate today) {
-        if (booking.status == BookingStatus.CANCELLED) {
+        if (booking.status == BookingStatus.CANCELLED || booking.status == BookingStatus.REJECTED) {
             return TripStage.CANCELLED;
         }
         if (!booking.checkOut.isAfter(today)) {
@@ -177,7 +180,8 @@ public final class BookingRules {
     }
 
     public static boolean canCancel(Booking booking, LocalDate today) {
-        return booking.status == BookingStatus.CONFIRMED && booking.checkIn.isAfter(today);
+        return (booking.status == BookingStatus.CONFIRMED || booking.status == BookingStatus.PENDING)
+                && booking.checkIn.isAfter(today);
     }
 
     public static List<Booking> trips(List<Booking> bookings, TripStage stage, LocalDate today) {

@@ -25,5 +25,21 @@ public interface Navigator {
 
     void openTripAfterBooking(String bookingId);
 
+    void openOwnerDashboard();
+
+    void openManageHotels();
+
+    void openAddHotel();
+
+    void openEditHotel(String hotelId);
+
+    void openManageBookings();
+
+    void openManageUsers();
+
+    void openUserDetail(String email);
+
+    void openCancellations();
+
     void showMessage(String message);
 }

@@ -46,6 +46,8 @@ public class ProfileFragment extends Fragment {
 
         buildAppearanceChips();
 
+        binding.ownerTools.setOnClickListener(v -> nav.openOwnerDashboard());
+
         binding.profileSave.setOnClickListener(v -> {
             String result = nav.repository().saveProfile(new GuestProfile(
                     textOf(binding.profileName),

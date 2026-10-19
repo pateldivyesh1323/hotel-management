@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -16,6 +18,13 @@ import com.example.hotel_booking_app.ui.booking.CheckoutFragment;
 import com.example.hotel_booking_app.ui.explore.ExploreFragment;
 import com.example.hotel_booking_app.ui.explore.HomeFragment;
 import com.example.hotel_booking_app.ui.explore.HotelDetailFragment;
+import com.example.hotel_booking_app.ui.owner.CancellationsFragment;
+import com.example.hotel_booking_app.ui.owner.HotelEditorFragment;
+import com.example.hotel_booking_app.ui.owner.ManageBookingsFragment;
+import com.example.hotel_booking_app.ui.owner.ManageHotelsFragment;
+import com.example.hotel_booking_app.ui.owner.ManageUsersFragment;
+import com.example.hotel_booking_app.ui.owner.OwnerDashboardFragment;
+import com.example.hotel_booking_app.ui.owner.UserDetailFragment;
 import com.example.hotel_booking_app.ui.profile.ProfileFragment;
 import com.example.hotel_booking_app.ui.saved.SavedFragment;
 import com.example.hotel_booking_app.ui.trips.TripDetailFragment;
@@ -34,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements Navigator {
     private StayRequest stay;
     private String query = "";
     private boolean suppressTabCallback = false;
+    private int topInset = 0;
+    private boolean heroTop = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +58,12 @@ public class MainActivity extends AppCompatActivity implements Navigator {
                 today.plusDays(DEFAULT_LEAD_DAYS),
                 today.plusDays(DEFAULT_LEAD_DAYS + DEFAULT_NIGHTS),
                 2);
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top;
+            applyInsets();
+            return insets;
+        });
 
         binding.toolbar.setNavigationOnClickListener(v -> getSupportFragmentManager().popBackStack());
 
@@ -95,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements Navigator {
                 .commit();
         binding.toolbar.setVisibility(View.GONE);
         binding.bottomNav.setVisibility(View.VISIBLE);
+        heroTop = id == R.id.tab_explore;
+        applyInsets();
     }
 
     private void push(Fragment fragment) {
@@ -109,11 +128,21 @@ public class MainActivity extends AppCompatActivity implements Navigator {
         boolean detail = getSupportFragmentManager().getBackStackEntryCount() > 0;
         binding.toolbar.setVisibility(detail ? View.VISIBLE : View.GONE);
         binding.bottomNav.setVisibility(detail ? View.GONE : View.VISIBLE);
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
         if (detail) {
-            Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
             CharSequence title = current instanceof HasTitle ? ((HasTitle) current).title(this) : "";
             binding.toolbar.setTitle(title);
+        } else {
+            heroTop = current instanceof HomeFragment;
         }
+        applyInsets();
+    }
+
+    private void applyInsets() {
+        binding.toolbar.setPadding(0, topInset, 0, 0);
+        boolean detail = getSupportFragmentManager().getBackStackEntryCount() > 0;
+        int containerTop = (detail || heroTop) ? 0 : topInset;
+        binding.container.setPadding(0, containerTop, 0, 0);
     }
 
     @Override
@@ -169,7 +198,47 @@ public class MainActivity extends AppCompatActivity implements Navigator {
         suppressTabCallback = false;
         selectTab(R.id.tab_trips);
         push(TripDetailFragment.newInstance(bookingId));
-        showMessage("Booking confirmed");
+        showMessage("Reservation requested · awaiting owner confirmation");
+    }
+
+    @Override
+    public void openOwnerDashboard() {
+        push(new OwnerDashboardFragment());
+    }
+
+    @Override
+    public void openManageHotels() {
+        push(new ManageHotelsFragment());
+    }
+
+    @Override
+    public void openAddHotel() {
+        push(HotelEditorFragment.newInstance(null));
+    }
+
+    @Override
+    public void openEditHotel(String hotelId) {
+        push(HotelEditorFragment.newInstance(hotelId));
+    }
+
+    @Override
+    public void openManageBookings() {
+        push(new ManageBookingsFragment());
+    }
+
+    @Override
+    public void openManageUsers() {
+        push(new ManageUsersFragment());
+    }
+
+    @Override
+    public void openUserDetail(String email) {
+        push(UserDetailFragment.newInstance(email));
+    }
+
+    @Override
+    public void openCancellations() {
+        push(new CancellationsFragment());
     }
 
     @Override

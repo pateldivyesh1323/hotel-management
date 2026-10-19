@@ -37,6 +37,8 @@ public class CheckoutFragment extends Fragment implements HasTitle {
     private RoomOffer offer;
     private String appliedPromo = "";
     private boolean payAtHotel = false;
+    private int rooms = 1;
+    private int unitsLeft = 0;
 
     public static CheckoutFragment newInstance(String offerId) {
         CheckoutFragment fragment = new CheckoutFragment();
@@ -85,6 +87,12 @@ public class CheckoutFragment extends Fragment implements HasTitle {
 
         binding.guestName.addTextChangedListener(TextWatchers.onChanged(text -> hideError()));
         binding.guestEmail.addTextChangedListener(TextWatchers.onChanged(text -> hideError()));
+
+        unitsLeft = nav.repository().unitsLeft(offer, stay);
+        rooms = Math.min(rooms, Math.max(unitsLeft, 1));
+        binding.roomsMinus.setOnClickListener(v -> changeRooms(-1));
+        binding.roomsPlus.setOnClickListener(v -> changeRooms(1));
+        renderRooms();
 
         binding.breakfastHint.setText(Format.money(BookingRules.BREAKFAST_RATE) + " per guest per night");
         binding.breakfastSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> renderPrice());
@@ -137,11 +145,30 @@ public class CheckoutFragment extends Fragment implements HasTitle {
         renderPrice();
     }
 
+    private void changeRooms(int delta) {
+        int updated = rooms + delta;
+        if (updated < 1 || updated > unitsLeft) {
+            return;
+        }
+        rooms = updated;
+        renderRooms();
+    }
+
+    private void renderRooms() {
+        binding.roomsCount.setText(String.valueOf(rooms));
+        binding.roomsAvailable.setText(unitsLeft == 0
+                ? "Sold out for these dates"
+                : unitsLeft + " of " + offer.units + " available");
+        binding.roomsMinus.setEnabled(rooms > 1);
+        binding.roomsPlus.setEnabled(rooms < unitsLeft);
+        renderPrice();
+    }
+
     private void renderPrice() {
         StayRequest stay = nav.stay();
         Integer promoPercent = BookingRules.promoPercent(appliedPromo);
         PriceBreakdown price = BookingRules.price(offer.nightlyRate, stay.getNights(), stay.guests,
-                binding.breakfastSwitch.isChecked(), promoPercent == null ? 0 : promoPercent);
+                rooms, binding.breakfastSwitch.isChecked(), promoPercent == null ? 0 : promoPercent);
         PriceCards.bind(binding.priceCard.getRoot(), price);
         binding.confirmBooking.setText("Confirm booking · " + Format.money(price.total));
     }
@@ -153,6 +180,7 @@ public class CheckoutFragment extends Fragment implements HasTitle {
                 textOf(binding.guestPhone),
                 textOf(binding.guestEmail),
                 stay,
+                rooms,
                 textOf(binding.guestRequests),
                 binding.breakfastSwitch.isChecked(),
                 appliedPromo,

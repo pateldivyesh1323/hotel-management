@@ -19,4 +19,8 @@ public final class RoomOffer {
         this.beds = beds;
         this.sizeSqm = sizeSqm;
     }
+
+    public RoomOffer withPriceAndUnits(int newNightlyRate, int newUnits) {
+        return new RoomOffer(id, hotelId, type, newNightlyRate, newUnits, beds, sizeSqm);
+    }
 }
