@@ -79,7 +79,15 @@ public class ProfileFragment extends Fragment {
 
     private void renderHeader() {
         GuestProfile profile = nav.repository().getProfile();
-        binding.profileAvatar.setImageResource(Photos.avatar(profile.name));
+        if (nav.repository().isAdmin()) {
+            binding.profileAvatar.setVisibility(View.GONE);
+            binding.profileInitials.setVisibility(View.VISIBLE);
+            binding.profileInitials.setText(initials(profile.name));
+        } else {
+            binding.profileInitials.setVisibility(View.GONE);
+            binding.profileAvatar.setVisibility(View.VISIBLE);
+            binding.profileAvatar.setImageResource(Photos.avatar(profile.name));
+        }
         binding.profileTitle.setText(profile.name);
         int upcoming = nav.repository().trips(TripStage.UPCOMING).size();
         int past = nav.repository().trips(TripStage.PAST).size();
@@ -106,6 +114,19 @@ public class ProfileFragment extends Fragment {
                 HotelApplication.applyThemeMode(mode);
             }
         });
+    }
+
+    private String initials(String name) {
+        String trimmed = name.trim();
+        if (trimmed.isEmpty()) {
+            return "?";
+        }
+        String[] parts = trimmed.split("\\s+");
+        String result = parts[0].substring(0, 1);
+        if (parts.length > 1) {
+            result += parts[parts.length - 1].substring(0, 1);
+        }
+        return result.toUpperCase();
     }
 
     private String textOf(TextInputEditText field) {
