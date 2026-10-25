@@ -9,7 +9,19 @@ import java.util.Locale;
 public final class SampleData {
 
     public static final GuestProfile PROFILE =
-            new GuestProfile("Aditi Sharma", "aditi.sharma@example.com", "+91 98250 11223");
+            new GuestProfile("Neha Patel", "nehapatel@gmail.com", "+919876543210");
+
+    public static final String DEMO_PASSWORD = "password";
+    public static final String ADMIN_EMAIL = "admin@example.com";
+
+    public static List<Account> accounts() {
+        List<Account> accounts = new ArrayList<>();
+        accounts.add(new Account(ADMIN_EMAIL, "Hotel Admin", "+91 90000 00000",
+                PasswordHash.of(DEMO_PASSWORD), true));
+        accounts.add(new Account(PROFILE.email, PROFILE.name, PROFILE.phone,
+                PasswordHash.of(DEMO_PASSWORD), false));
+        return accounts;
+    }
 
     private static final class HotelSeed {
         final Hotel hotel;

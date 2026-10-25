@@ -1,5 +1,6 @@
 package com.example.hotel_booking_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,6 +15,7 @@ import com.example.hotel_booking_app.data.StayRequest;
 import com.example.hotel_booking_app.databinding.ActivityMainBinding;
 import com.example.hotel_booking_app.ui.HasTitle;
 import com.example.hotel_booking_app.ui.Navigator;
+import com.example.hotel_booking_app.ui.auth.AuthActivity;
 import com.example.hotel_booking_app.ui.booking.CheckoutFragment;
 import com.example.hotel_booking_app.ui.explore.ExploreFragment;
 import com.example.hotel_booking_app.ui.explore.HomeFragment;
@@ -49,10 +51,16 @@ public class MainActivity extends AppCompatActivity implements Navigator {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        repository = ((HotelApplication) getApplication()).repository();
+        if (!repository.isLoggedIn()) {
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return;
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        repository = ((HotelApplication) getApplication()).repository();
         LocalDate today = repository.currentDate();
         stay = new StayRequest(
                 today.plusDays(DEFAULT_LEAD_DAYS),
@@ -244,5 +252,12 @@ public class MainActivity extends AppCompatActivity implements Navigator {
     @Override
     public void showMessage(String message) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void logOut() {
+        repository.logOut();
+        startActivity(new Intent(this, AuthActivity.class));
+        finish();
     }
 }

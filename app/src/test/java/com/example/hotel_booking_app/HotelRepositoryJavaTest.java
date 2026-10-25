@@ -1,6 +1,7 @@
 package com.example.hotel_booking_app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -10,6 +11,7 @@ import com.example.hotel_booking_app.data.BookingStatus;
 import com.example.hotel_booking_app.data.HotelRepository;
 import com.example.hotel_booking_app.data.RefundStatus;
 import com.example.hotel_booking_app.data.RoomOffer;
+import com.example.hotel_booking_app.data.SampleData;
 import com.example.hotel_booking_app.data.StayRequest;
 import com.example.hotel_booking_app.data.TripStage;
 
@@ -180,6 +182,51 @@ public class HotelRepositoryJavaTest {
                 "Updated description", 5, new ArrayList<>(), 2));
         assertEquals("Palm Cove Renamed", repo.hotel("htl-goa").name);
         assertEquals(5, repo.hotel("htl-goa").stars);
+    }
+
+    @Test
+    public void appStartsLoggedOutAndDemoAccountsCanLogIn() {
+        HotelRepository repo = repo();
+        assertFalse(repo.isLoggedIn());
+        assertNull(repo.logIn("nehapatel@gmail.com", SampleData.DEMO_PASSWORD));
+        assertTrue(repo.isLoggedIn());
+        assertFalse(repo.isAdmin());
+    }
+
+    @Test
+    public void wrongPasswordIsRejected() {
+        HotelRepository repo = repo();
+        assertNotNull(repo.logIn("nehapatel@gmail.com", "nope"));
+        assertFalse(repo.isLoggedIn());
+    }
+
+    @Test
+    public void adminAccountIsFlaggedAsAdmin() {
+        HotelRepository repo = repo();
+        assertNull(repo.logIn(SampleData.ADMIN_EMAIL, SampleData.DEMO_PASSWORD));
+        assertTrue(repo.isAdmin());
+    }
+
+    @Test
+    public void signUpCreatesAnAccountThenLogsIn() {
+        HotelRepository repo = repo();
+        assertNull(repo.signUp("New Guest", "new.account@example.com", "123", "secret1"));
+        assertTrue(repo.isLoggedIn());
+        assertEquals("new.account@example.com", repo.currentUser().email);
+    }
+
+    @Test
+    public void signUpWithAnExistingEmailIsRejected() {
+        HotelRepository repo = repo();
+        assertNotNull(repo.signUp("Dup", "nehapatel@gmail.com", "1", "secret1"));
+    }
+
+    @Test
+    public void logOutClearsTheSession() {
+        HotelRepository repo = repo();
+        repo.logIn(SampleData.ADMIN_EMAIL, SampleData.DEMO_PASSWORD);
+        repo.logOut();
+        assertFalse(repo.isLoggedIn());
     }
 
     @Test

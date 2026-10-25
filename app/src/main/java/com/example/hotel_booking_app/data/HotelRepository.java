@@ -24,7 +24,9 @@ public class HotelRepository {
     private final List<Review> reviews = new ArrayList<>();
     private final List<Booking> bookings = new ArrayList<>();
     private final List<String> favorites = new ArrayList<>();
+    private final List<Account> accounts = new ArrayList<>();
     private GuestProfile profile = SampleData.PROFILE;
+    private String currentUserEmail = "";
     private ThemeMode themeMode;
 
     public HotelRepository(@Nullable HotelStorage storage, Supplier<LocalDate> today) {
@@ -47,7 +49,14 @@ public class HotelRepository {
             reviews.addAll(saved.reviews);
             favorites.addAll(saved.favorites);
             profile = saved.profile;
+            if (saved.accounts != null && !saved.accounts.isEmpty()) {
+                accounts.addAll(saved.accounts);
+            } else {
+                accounts.addAll(SampleData.accounts());
+            }
+            currentUserEmail = saved.currentUserEmail != null ? saved.currentUserEmail : "";
         } else {
+            accounts.addAll(SampleData.accounts());
             seed();
         }
     }
@@ -536,7 +545,81 @@ public class HotelRepository {
             return "Enter a valid email address";
         }
         profile = new GuestProfile(candidate.name.trim(), candidate.email.trim(), candidate.phone.trim());
+        Account current = currentUser();
+        if (current != null) {
+            accounts.set(accounts.indexOf(current), current.withProfile(profile.name, profile.phone));
+        }
         persist();
+        return null;
+    }
+
+    @Nullable
+    public Account currentUser() {
+        return accountByEmail(currentUserEmail);
+    }
+
+    public boolean isLoggedIn() {
+        return currentUser() != null;
+    }
+
+    public boolean isAdmin() {
+        Account current = currentUser();
+        return current != null && current.admin;
+    }
+
+    @Nullable
+    public String logIn(String email, String password) {
+        String trimmed = email.trim();
+        if (trimmed.isEmpty() || password.isEmpty()) {
+            return "Enter your email and password";
+        }
+        Account account = accountByEmail(trimmed);
+        if (account == null || !PasswordHash.matches(password, account.passwordHash)) {
+            return "Incorrect email or password";
+        }
+        currentUserEmail = account.email;
+        profile = new GuestProfile(account.name, account.email, account.phone);
+        persist();
+        return null;
+    }
+
+    @Nullable
+    public String signUp(String name, String email, String phone, String password) {
+        String trimmedName = name.trim();
+        String trimmedEmail = email.trim();
+        if (trimmedName.isEmpty()) {
+            return "Enter your name";
+        }
+        if (!trimmedEmail.contains("@")) {
+            return "Enter a valid email address";
+        }
+        if (password.length() < 6) {
+            return "Password must be at least 6 characters";
+        }
+        if (accountByEmail(trimmedEmail) != null) {
+            return "An account with this email already exists";
+        }
+        Account account = new Account(trimmedEmail, trimmedName, phone.trim(),
+                PasswordHash.of(password), false);
+        accounts.add(account);
+        currentUserEmail = account.email;
+        profile = new GuestProfile(account.name, account.email, account.phone);
+        persist();
+        return null;
+    }
+
+    public void logOut() {
+        currentUserEmail = "";
+        persist();
+    }
+
+    @Nullable
+    private Account accountByEmail(String email) {
+        for (Account account : accounts) {
+            if (account.email.equalsIgnoreCase(email)) {
+                return account;
+            }
+        }
         return null;
     }
 
@@ -555,7 +638,10 @@ public class HotelRepository {
         bookings.clear();
         reviews.clear();
         favorites.clear();
-        profile = SampleData.PROFILE;
+        Account current = currentUser();
+        profile = current != null
+                ? new GuestProfile(current.name, current.email, current.phone)
+                : SampleData.PROFILE;
         seed();
     }
 
@@ -603,6 +689,7 @@ public class HotelRepository {
         }
         Set<String> favoriteSet = new LinkedHashSet<>(favorites);
         storage.save(new StoredState(new ArrayList<>(catalog), new ArrayList<>(offers),
-                new ArrayList<>(bookings), userReviews, favoriteSet, profile));
+                new ArrayList<>(bookings), userReviews, favoriteSet, profile,
+                new ArrayList<>(accounts), currentUserEmail));
     }
 }

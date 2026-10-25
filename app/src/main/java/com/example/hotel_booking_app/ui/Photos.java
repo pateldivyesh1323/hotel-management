@@ -18,9 +18,9 @@ public final class Photos {
     private static final int[] GUEST_AVATARS = {
             R.drawable.guest_avatar_1,
             R.drawable.guest_avatar_2,
-            R.drawable.guest_avatar_3,
-            R.drawable.guest_avatar_4,
             R.drawable.guest_avatar_5,
+            R.drawable.guest_avatar_4,
+            R.drawable.guest_avatar_3,
             R.drawable.guest_avatar_6,
             R.drawable.guest_avatar_7,
             R.drawable.guest_avatar_8

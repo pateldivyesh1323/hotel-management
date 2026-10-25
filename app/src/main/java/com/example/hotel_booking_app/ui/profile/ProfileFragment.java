@@ -19,6 +19,7 @@ import com.example.hotel_booking_app.databinding.FragmentProfileBinding;
 import com.example.hotel_booking_app.ui.Navigator;
 import com.example.hotel_booking_app.ui.Photos;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class ProfileFragment extends Fragment {
@@ -46,7 +47,15 @@ public class ProfileFragment extends Fragment {
 
         buildAppearanceChips();
 
+        binding.ownerTools.setVisibility(nav.repository().isAdmin() ? View.VISIBLE : View.GONE);
         binding.ownerTools.setOnClickListener(v -> nav.openOwnerDashboard());
+
+        binding.logout.setOnClickListener(v -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Log out?")
+                .setMessage("You'll need to log in again to book stays.")
+                .setPositiveButton("Log out", (dialog, which) -> nav.logOut())
+                .setNegativeButton("Cancel", null)
+                .show());
 
         binding.profileSave.setOnClickListener(v -> {
             String result = nav.repository().saveProfile(new GuestProfile(

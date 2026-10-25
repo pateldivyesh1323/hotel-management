@@ -10,14 +10,19 @@ public final class StoredState {
     public final List<Review> reviews;
     public final Set<String> favorites;
     public final GuestProfile profile;
+    public final List<Account> accounts;
+    public final String currentUserEmail;
 
     public StoredState(List<Hotel> hotels, List<RoomOffer> offers, List<Booking> bookings,
-                       List<Review> reviews, Set<String> favorites, GuestProfile profile) {
+                       List<Review> reviews, Set<String> favorites, GuestProfile profile,
+                       List<Account> accounts, String currentUserEmail) {
         this.hotels = hotels;
         this.offers = offers;
         this.bookings = bookings;
         this.reviews = reviews;
         this.favorites = favorites;
         this.profile = profile;
+        this.accounts = accounts;
+        this.currentUserEmail = currentUserEmail;
     }
 }

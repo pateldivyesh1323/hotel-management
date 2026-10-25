@@ -102,6 +102,7 @@
                         android:id="@+id/profile_email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:enabled="false"
                         android:inputType="textEmailAddress"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
@@ -172,5 +173,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="Reset demo data" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/logout"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Log out"
+            android:textColor="?attr/colorError" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

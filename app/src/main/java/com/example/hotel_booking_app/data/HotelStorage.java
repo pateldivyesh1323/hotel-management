@@ -54,6 +54,12 @@ public class HotelStorage {
             root.put("reviews", reviews);
             root.put("favorites", new JSONArray(state.favorites));
             root.put("profile", profileToJson(state.profile));
+            JSONArray accounts = new JSONArray();
+            for (Account account : state.accounts) {
+                accounts.put(accountToJson(account));
+            }
+            root.put("accounts", accounts);
+            root.put("currentUserEmail", state.currentUserEmail);
             prefs.edit().putString(KEY_STATE, root.toString()).apply();
         } catch (JSONException e) {
             throw new IllegalStateException("Failed to serialize booking state", e);
@@ -115,8 +121,17 @@ public class HotelStorage {
             for (int i = 0; i < favoritesJson.length(); i++) {
                 favorites.add(favoritesJson.getString(i));
             }
+            List<Account> accounts = null;
+            JSONArray accountsJson = root.optJSONArray("accounts");
+            if (accountsJson != null) {
+                accounts = new ArrayList<>();
+                for (int i = 0; i < accountsJson.length(); i++) {
+                    accounts.add(accountFromJson(accountsJson.getJSONObject(i)));
+                }
+            }
             return new StoredState(hotels, offers, bookings, reviews, favorites,
-                    profileFromJson(root.getJSONObject("profile")));
+                    profileFromJson(root.getJSONObject("profile")),
+                    accounts, root.optString("currentUserEmail", ""));
         } catch (JSONException e) {
             Log.w(TAG, "Discarding unreadable saved state", e);
             prefs.edit().remove(KEY_STATE).apply();
@@ -281,5 +296,24 @@ public class HotelStorage {
                 json.getString("name"),
                 json.getString("email"),
                 json.getString("phone"));
+    }
+
+    private JSONObject accountToJson(Account account) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("email", account.email);
+        json.put("name", account.name);
+        json.put("phone", account.phone);
+        json.put("passwordHash", account.passwordHash);
+        json.put("admin", account.admin);
+        return json;
+    }
+
+    private Account accountFromJson(JSONObject json) throws JSONException {
+        return new Account(
+                json.getString("email"),
+                json.getString("name"),
+                json.getString("phone"),
+                json.getString("passwordHash"),
+                json.getBoolean("admin"));
     }
 }

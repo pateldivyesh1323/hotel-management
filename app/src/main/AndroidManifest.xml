@@ -24,6 +24,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.auth.AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Hotel_Booking_App"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

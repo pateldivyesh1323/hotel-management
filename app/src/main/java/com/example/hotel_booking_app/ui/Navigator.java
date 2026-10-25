@@ -41,5 +41,7 @@ public interface Navigator {
 
     void openCancellations();
 
+    void logOut();
+
     void showMessage(String message);
 }
